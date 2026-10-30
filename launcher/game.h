@@ -1,7 +1,8 @@
-// This game's profile: everything the launcher knows about the game it belongs to. The launcher's code is the same
-// for every game (the RecompLauncher submodule, recomp_launcher\, with game_types.h for the types below); game.h,
-// game.cpp (the game's own texts) and palette.h (its colors) are each game's, with the art (launcher\art), the icon
-// (res\icon.ico), the resource script (res\launcher.rc) and the version (res\version.h).
+// This game's profile: everything the launcher knows about the game it belongs to. The launcher's code is the same for
+// every game (the RecompLauncher submodule, recomp_launcher\, with game_types.h for the types below); game.h, game.cpp
+// (the game's own texts) and palette.h (its colors) are each game's, with the art (launcher\art), the icon
+// (res\icon.ico), the resource script (res\launcher.rc) and the version (res\version.h). The names and the options the
+// game executable shares are src/project.h's.
 
 #pragma once
 
@@ -94,13 +95,12 @@ inline constexpr bool kNativeXRendererDefault = false;
 inline constexpr bool kShadowQuality = kHasNativeXRenderer && false;
 
 // The Graphics page's frame rate row: kFrameRateCvar's choices (game_types.h's FrameRate) and the value without the
-// key. A boolean cvar (kFrameRateIsBool: the values are 0 and 1, as
-// src/framerate.cpp's 60 FPS) or a number (the emulated vblank's rate, video_mode_refresh_rate, which some games
-// follow). A rate above 60 is offered only where the monitor reaches it, and marked experimental.
+// key. Here src/framerate.cpp's gh5_frame_rate, the frame rate itself: 60 as on the console, above it the emulated
+// vblank's rate (src/options.cpp), which the game follows at its own speed.
 inline constexpr const char* kFrameRateCvar = GAME_FRAME_RATE_CVAR;
-inline constexpr bool kFrameRateIsBool = true;
-inline constexpr std::array<FrameRate, 2> kFrameRates{{{0, 30}, {1, 60}}};
-inline constexpr int kFrameRateDefault = 0;
+inline constexpr bool kFrameRateIsBool = false;
+inline constexpr std::array<FrameRate, 6> kFrameRates{{{60, 60}, {120, 120}, {144, 144}, {160, 160}, {165, 165}, {240, 240}}};
+inline constexpr int kFrameRateDefault = 60;
 
 // The Xenos path's MSAA turned off (src/msaa.cpp): the Graphics page's antialiasing row with Xenos, the game's own
 // antialiasing (its label, "2× MSAA") or none.
@@ -112,19 +112,31 @@ inline constexpr const char* kMsaaLabel = "";
 // applies to NativeXRenderer only.
 inline constexpr const char* kUltrawideCvar = GAME_ULTRAWIDE_CVAR;
 
-// The languages the game has: the Game page's language row, in this order. Empty: the game asks in its own menu,
-// and the launcher has no row. Each is an XLanguage id (user_language: 1 English, 2 Japanese, 3 German, 4 French,
-// 5 Spanish, 6 Italian, 7 Korean, 8 Traditional Chinese, 9 Portuguese, 10 Simplified Chinese, 11 Polish,
-// 12 Russian) with its name in its own words (UTF-8; the launcher draws other scripts with Windows' fonts). A game
-// with two versions of a language lists it twice, the second with a boolean cvar set when it is chosen (Kameo's
-// Latin American Spanish). Until one is chosen, the Windows display language's: the entry whose `locales` (a
-// locale name prefix, "es-ES") matches the user's locale best, or the first with that id.
-inline constexpr std::array<Language, 0> kLanguages{};
+// The languages the game has (game_types.h's Language): the Game page's language row, in this order. Empty: the game
+// asks in its own menu, and the launcher has no row.
+// The disc's text packs (DATA/COMPRESSED/PAK/qs_*.pak.xen): English and French, German, Italian, Spanish (Spain's);
+// the game picks one from XGetLanguage at start (GH Van Halen's and GH Metallica's packs, the same here; not checked
+// in this game yet).
+inline constexpr std::array<Language, 5> kLanguages{{
+    {3, "Deutsch", nullptr, nullptr},
+    {1, "English", nullptr, nullptr},
+    {5, "Español", nullptr, nullptr},
+    {4, "Français", nullptr, nullptr},
+    {6, "Italiano", nullptr, nullptr},
+}};
 
-// Switches of the game's own (src/), each a boolean cvar with a row in the Settings tab (game_types.h's Toggle:
-// {cvar, default, group, needs}; ToggleGroup::kScreenEffects puts it under Graphics); their titles, hints and help are
-// game.cpp's (GameTexts::toggles and toggle_help, in this order).
-inline constexpr std::array<Toggle, 0> kToggles{};
+// Switches of the game's own (src/), each a boolean cvar with a row in the Settings tab (game_types.h's Toggle); their
+// titles, hints and help are game.cpp's (GameTexts::toggles and toggle_help, in this order).
+// The screen effects (src/screen_fx.cpp, docs/fixes-from-gh-van-halen.md), all on as on the console: the grain only
+// with the color correction (GH Van Halen's rule: without that pass its grain was far stronger). GH Van Halen's ink
+// blotches are not part of GH5's composite: no switch.
+inline constexpr std::array<Toggle, 5> kToggles{{
+    {"gh5_fx_bloom", true, ToggleGroup::kScreenEffects},
+    {"gh5_fx_depth_of_field", true, ToggleGroup::kScreenEffects},
+    {"gh5_fx_color", true, ToggleGroup::kScreenEffects},
+    {"gh5_fx_grain", true, ToggleGroup::kScreenEffects, "gh5_fx_color"},
+    {"gh5_fx_vignette", true, ToggleGroup::kScreenEffects},
+}};
 
 // Whether some switch is in `group`.
 constexpr bool HasToggles(ToggleGroup group) {
@@ -145,24 +157,55 @@ inline constexpr bool kHasDlcPage = false;
 
 // --- The keyboard ---
 
-// The Keyboard page's defaults where they are not the SDK's (game_types.h's KeyDefault); empty: the SDK's.
-inline constexpr std::array<KeyDefault, 0> kKeyboardDefaults{};
-// The Keyboard page's switch that makes some keys also tap a control (the SDK's mnk_tap_target); "": no switch.
-inline constexpr const char* kKeyboardTapTarget = "";
+// The Keyboard page's defaults where they are not the SDK's (its "Reset to defaults", and a control the files do not
+// set): keybind_* cvars and their keys, as src/startup.cpp writes them for the game. The keyboard as a guitar
+// (Gustavo's frets): D, F, J, K, L; the arrows strum; Space or Backspace Star Power; the sticks' other keys off, as
+// W A S D, F and K would move them with the frets. Empty: the SDK's (game_types.h's KeyDefault).
+inline constexpr std::array<KeyDefault, 19> kKeyboardDefaults{{
+    {"keybind_a", "D"},
+    {"keybind_b", "F"},
+    {"keybind_y", "J"},
+    {"keybind_x", "K"},
+    {"keybind_left_shoulder", "L"},
+    {"keybind_dpad_up", "Up"},
+    {"keybind_dpad_down", "Down"},
+    {"keybind_back", "Space,Backspace"},
+    {"keybind_start", "Return,X"},
+    {"keybind_rstick_right", "Right"},
+    {"keybind_rstick_up", ""},
+    {"keybind_rstick_down", ""},
+    {"keybind_rstick_left", ""},
+    {"keybind_rstick_press", ""},
+    {"keybind_lstick_up", ""},
+    {"keybind_lstick_down", ""},
+    {"keybind_lstick_left", ""},
+    {"keybind_lstick_right", ""},
+    {"keybind_lstick_press", ""},
+}};
+// The Keyboard page's switch that makes the keyboard's frets strum as they are pressed (the SDK's mnk_tap_target with
+// src/startup.cpp's mnk_tap_sources, the frets): the control it presses when on, the D-pad (strumming); "": no switch.
+// The same on each controller's page for the controllers playing guitar (gamepad_tap_target, gamepad_tap_sources).
+// Its title and hint are game.cpp's (GameTexts::keyboard_tap_title, keyboard_tap_hint).
+inline constexpr const char* kKeyboardTapTarget = "dpad_down";
+// The whammy bar's row on each controller playing guitar (page_controls.cpp): how far the game reads the bar, and its
+// calibration (the SDK's gamepad_whammy_calibration, recomp change 60: the axis it is on, at rest and all the way).
+inline constexpr bool kHasWhammy = true;
 
 // --- Singing ---
 
-// The Controls tab's microphone and each controller's part (page_controls.cpp, RecompLauncher 3.1): a recording device
-// of the PC as the game's USB microphone (the SDK's usb_microphone_1, recomp change 55) and a controller playing the
-// game's instrument or singing (the SDK's gamepad_device_subtypes, change 56). False: the game has no microphone.
-inline constexpr bool kHasMicrophones = false;
-// The microphone's gain in dB (usb_microphone_1_gain) until the player changes it, and the Microphone's Reset.
-inline constexpr int kMicrophoneGainDefault = 0;
+// The Controls tab's microphone and each controller's part (page_controls.cpp): a recording device of the PC as each of
+// the game's two USB microphones (the SDK's usb_microphone_1 and _2, recomp change 55), and a controller playing the
+// game's instrument (gamepad_subtype's guitar, src/startup.cpp) or singing (a plain gamepad, XInput subtype 1, which the
+// game gives the vocals; the SDK's gamepad_device_subtypes, change 56). Real guitars and drum kits keep their own.
+// Their names are GameTexts::part_instrument and part_vocals.
+inline constexpr bool kHasMicrophones = true;
+// The microphone's gain (usb_microphone_1_gain) until the player changes it, and the Microphone's Reset: src/startup.cpp's.
+inline constexpr int kMicrophoneGainDefault = -12;
 
 // --- The controls in the game's words ---
 
-// The game's functions (game_types.h's GameControl) in groups, in the launcher's language (game.cpp); empty: the pages
-// show the Xbox 360 controls (texts.cpp).
+// The game's functions (game_types.h's GameControl) in groups, in the launcher's language (game.cpp); empty: the pages show the Xbox 360 controls
+// (texts.cpp). The Keyboard page lists after them, under "Other controls", the ones no function is on.
 const std::vector<GameControlGroup>& GameControlsFor(uint32_t language);
 
 // --- Texts of the game's own (game.cpp) ---

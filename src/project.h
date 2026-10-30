@@ -20,12 +20,13 @@
 
 // The launcher rows and the options a game turns on once it has the feature (as KameoRecomp, GRAWRecomp and
 // POTCAWERecomp did, in this order):
-// - 60 FPS: the cvar of src/framerate.cpp's option (for example "gh5_60fps"); "" = no row.
-#define GAME_FRAME_RATE_CVAR ""
+// - Frame rate: the cvar of src/framerate.cpp's option, here the frame rate itself (60 to 240, the emulated vblank's
+//   rate above 60); "" = no row.
+#define GAME_FRAME_RATE_CVAR "gh5_frame_rate"
 // - Ultrawide: the cvar of src/widescreen.cpp's option, the game's cameras widened for a screen wider than 16:9
 //   (for example "gh5_ultrawide"); "" = no row. On the Xenos path the image is then stretched over the screen
 //   (present_letterbox = false, src/options.cpp).
-#define GAME_ULTRAWIDE_CVAR ""
+#define GAME_ULTRAWIDE_CVAR "gh5_ultrawide"
 // - NativeXRenderer: 1 once src/native_x_renderer_gh5.cpp (hooks and profile) is in and the observer matches
 //   (native_x_renderer/docs/integrating-a-game.md): the "Renderer" row, its internal resolution and antialiasing.
-#define GAME_HAS_NATIVE_X_RENDERER 0
+#define GAME_HAS_NATIVE_X_RENDERER 1

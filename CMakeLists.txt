@@ -1,5 +1,5 @@
 # GH5Recomp - static recompilation of Guitar Hero 5 (Xbox 360), built on the ReXGlue SDK, drawn by the SDK's Xenos
-# emulation (and, once integrated, by NativeXRenderer: native_x_renderer/, a submodule).
+# emulation or by NativeXRenderer (native_x_renderer/, a submodule).
 #
 # The SDK is the thirdparty/rexglue-sdk git submodule: ElGuslml/rexglue-sdk, branch recomp, the official
 # nightly of 2026-10-02 (v0.10.0 and 24 later commits) with the changes these projects and NativeXRenderer
@@ -64,9 +64,19 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${GH5_SOURCES_MA
 
 # Sources
 set(GH5_SOURCES
+    src/fmod_mix.cpp
+    src/framerate.cpp
+    src/keyboard.cpp
     src/main.cpp
+    src/native_x_renderer_gh5.cpp
     src/options.cpp
+    src/players.cpp
+    src/quit_prompt.cpp
+    src/screen_fx.cpp
     src/startup.cpp
+    src/thread_waits.cpp
+    src/timer.cpp
+    src/widescreen.cpp
 )
 
 if(WIN32)
@@ -78,9 +88,8 @@ endif()
 rexglue_setup_target(gh5 GPU_PLUGINS xenos)
 add_dependencies(gh5 gh5_sources_marker)
 
-# NativeXRenderer: the native renderer (native_x_renderer/README.md), built and linked from the start. Nothing
-# references it until the game side exists (src/native_x_renderer_gh5.cpp: hooks and profile; the library's
-# docs/integrating-a-game.md), so the game draws on the Xenos path until then.
+# NativeXRenderer: the native renderer (native_x_renderer/README.md). The game side (hooks, profile) is in
+# src/native_x_renderer_gh5.cpp; the game draws on the Xenos path while native_x_renderer is off.
 add_subdirectory(native_x_renderer)
 target_link_libraries(gh5 PRIVATE native_x_renderer)
 # NVIDIA's DLSS runtime next to the executable.
@@ -100,11 +109,12 @@ target_compile_definitions(gh5 PRIVATE
     GH5_DEFAULT_GAME_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/assets")
 
 # GH5 Launcher: the options, the first run from the player's ISO, the achievements and the updates, in a separate
-# executable so that GH5Recomp.exe starts right away (for example from Steam Big Picture); "Play" starts the game, and the
-# launcher comes back when it closes. It writes gh5_options.toml next to GH5Recomp.exe. The launcher's code is the
-# RecompLauncher submodule (recomp_launcher/, the same in every game); the game's own names, files and options are
-# launcher/game.h and launcher/game.cpp, its colors launcher/palette.h, its art launcher/art/, its resources
-# res/launcher.rc. RECOMP_LAUNCHER_DIR points elsewhere to try a working copy of it.
+# executable so that GH5Recomp.exe starts right away (for example from Steam Big Picture); "Play" starts the game, and
+# the launcher comes back when it closes. It writes gh5_options.toml next to GH5Recomp.exe. The launcher's
+# code is the RecompLauncher submodule (recomp_launcher/, the same in every game); the game's own names, files and
+# options are launcher/game.h (with src/project.h, which the game shares) and launcher/game.cpp, its colors
+# launcher/palette.h, its art launcher/art/, its resources res/launcher.rc. RECOMP_LAUNCHER_DIR points elsewhere to try
+# a working copy of it.
 set(RECOMP_LAUNCHER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/recomp_launcher" CACHE PATH "The RecompLauncher tree")
 if(NOT EXISTS "${RECOMP_LAUNCHER_DIR}/RecompLauncher.cmake")
     message(FATAL_ERROR "The RecompLauncher submodule (${RECOMP_LAUNCHER_DIR}) is missing: git submodule update --init")

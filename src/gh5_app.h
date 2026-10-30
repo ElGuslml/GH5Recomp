@@ -10,10 +10,16 @@
 #include <rex/logging.h>
 #include <rex/system/kernel_state.h>
 #include <rex/system/xthread.h>
+#include <rex/ui/imgui_dialog.h>
 
+#include <native_x_renderer/native_x_renderer.h>
+
+#include "native_x_renderer_gh5.h"
+#include "keyboard.h"
 #include "options.h"
 #include "project.h"
 #include "startup.h"
+#include "widescreen.h"
 
 class Gh5App : public rex::ReXApp {
  public:
@@ -35,7 +41,8 @@ class Gh5App : public rex::ReXApp {
   }
 
   // Game files: without --game_data_root, assets/ next to GH5Recomp.exe or the repository's assets/. User data
-  // (saves, profile, shader cache): userdata/ next to the executable (src/startup.cpp).
+  // (shader cache, downloadable content; the saves and achievements before the profiles): userdata/ next to the
+  // executable; the saves, settings and achievements in the launchers' current profile (src/startup.cpp).
   void OnConfigurePaths(rex::PathConfig& paths) override {
     if (paths.game_data_root.empty()) {
       paths.game_data_root = gh5::DefaultGameRoot();
@@ -53,21 +60,34 @@ class Gh5App : public rex::ReXApp {
     gh5::EnsureDefaultConfig(exe_dir / GAME_CONFIG);
     if (!rex::ReXApp::SetupEnvironment()) return false;
     REXLOG_INFO("[startup] User data: {}", user_data_root().string());
+    REXLOG_INFO("[startup] {}", native_x_renderer::Describe());
     if (!rex::cvar::Query<bool>("achievements_cache_only") && !gh5::CheckGameFiles(game_data_root())) return false;
     gh5::LoadLauncherOptions(exe_dir / GAME_OPTIONS, gh5::GpuPluginPath());
     return true;
   }
 
-  // Window title (the SDK sets "<app name> <SDK build stamp>"). NativeXRenderer is initialized here too, before
-  // the guest starts, once the game has its side (native_x_renderer/docs/integrating-a-game.md, step 2):
-  //   native_x_renderer::Initialize(gh5::NativeXRendererProfile(),
-  //                                 runtime() ? runtime()->graphics_system() : nullptr, window(),
-  //                                 runtime() ? runtime()->cache_root() : std::filesystem::path());
+  // Window title (the SDK sets "<app name> <SDK build stamp>"), then NativeXRenderer, before the guest starts: its
+  // hooks (src/native_x_renderer_gh5.cpp) are pass-throughs until it is initialized; then ultrawide
+  // (src/widescreen.cpp): the cameras' aspect ratio follows the window.
   void OnPostSetup() override {
     if (window()) {
       window()->SetTitle(GAME_TITLE);
     }
+    native_x_renderer::Initialize(gh5::NativeXRendererProfile(),
+                                  runtime() ? runtime()->graphics_system() : nullptr, window(),
+                                  runtime() ? runtime()->cache_root() : std::filesystem::path());
+    if (window()) {
+      gh5::SetOutputSize(window()->GetActualPhysicalWidth(), window()->GetActualPhysicalHeight());
+    }
+    gh5::InitializeKeyboard();
   }
+  void OnWindowPixelSizeChanged(uint32_t pixel_width, uint32_t pixel_height) override {
+    gh5::SetOutputSize(pixel_width, pixel_height);
+  }
+
+  // Ultrawide's black bars outside a song (src/widescreen.cpp): a dialog of the SDK's ImGui layer, gone before it.
+  void OnCreateDialogs(rex::ui::ImGuiDrawer* drawer) override { menu_bars_ = gh5::CreateMenuBars(drawer); }
+  void OnShutdown() override { menu_bars_.reset(); }
 
   // On exit, log whether the game asked to launch another executable.
   void OnGuestThreadExit(rex::system::XThread* thread) override {
@@ -80,4 +100,7 @@ class Gh5App : public rex::ReXApp {
     REXLOG_INFO("[gh5] Title exited. launch_path='{}' flags=0x{:X} launch_data={} bytes",
                 ld.launch_path, ld.launch_flags, ld.launch_data.size());
   }
+
+ private:
+  std::unique_ptr<rex::ui::ImGuiDialog> menu_bars_;
 };

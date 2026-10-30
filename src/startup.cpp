@@ -12,8 +12,8 @@
 #include <array>
 #include <cstdint>
 #include <fstream>
-#include <optional>
 #include <iterator>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -25,8 +25,8 @@
 #include <windows.h>
 #endif
 
-#include "project.h"
 #include "profile_store.h"
+#include "project.h"
 
 namespace gh5 {
 namespace {
@@ -84,6 +84,106 @@ clear_memory_page_state = false
 # 3 = 4x (the SDK default), 2 = 2x, 0 = off, -1 = only what the game asks. GH5 Launcher's
 # "Anisotropic filtering" row sets it.
 anisotropic_override = 5
+# Call the game's audio callback at least 3 ms apart (the console calls it every 5.3 ms), not in the
+# bursts of two the host device frees frames in. FMOD's mixer polls how far its two-block ring has
+# been read and missed most blocks: from the title screen on, the music played as noise. 0 = the SDK
+# default (no spacing).
+audio_callback_min_interval_us = 3000
+# Audio frames queued for the sound device (5.3 ms each): 4 is the least the SDK allows, 21 ms less
+# delay between a strum and its sound than the SDK's 8. With the calls spaced the queue stays full
+# (no gap in a whole song, measured); the game's calibration covers what is left. 8 = the SDK default.
+audio_maxqframes = 4
+# The SDK's audio threads (its audio worker runs the game's sound callback and, with gh5_fmod_on_audio_thread,
+# FMOD's mixing) in Windows' multimedia class "Pro Audio", as the sound device's thread: a busy PC holds them up less.
+# false = normal priority (the SDK default).
+audio_thread_priority = true
+# When the game's sound still comes late (its audio thread held up longer than the 21 ms queue), the silence played
+# meanwhile is made up by dropping as many of its next frames: a short skip, and the music stays with the notes (the
+# SDK default, false, plays the rest of the song that much late, until a pause).
+audio_keep_time = true
+# GH5 Launcher's "Low latency audio" (audio_wasapi_exclusive, off by default) takes the output device in
+# exclusive mode, past Windows' audio engine. With it, 10 ms kept in the device's buffer and 2 of the game's frames
+# queued instead of 4: on a Focusrite Scarlett 2i2, 20 ms from the game's frame to the driver playing it, where the
+# shared output takes 77 ms (measured in GH Metallica). Without it these do nothing.
+audio_wasapi_exclusive_buffer_ms = 10
+audio_wasapi_exclusive_queue = 2
+# V-Sync (GH5 Launcher's row writes both): NativeXRenderer presents with FIFO, each frame shown once and never
+# torn, and the game's vertical blank follows the monitor's where the frame rate is its refresh rate or a whole
+# fraction of it, so the game never runs ahead of the display. Measured in GH Metallica at 160 FPS on a 160 Hz display:
+# 4 ms from present to display, no frame dropped (MAILBOX with the SDK's timer: 16-19 ms, NVIDIA queuing three
+# frames). "immediate" and false = V-Sync off (tearing, or a G-Sync / FreeSync display following the game).
+native_x_renderer_present_mode = "vsync"
+vblank_follows_display = true
+# Report a controller (and the keyboard's emulated one) as a guitar: the game gives a plain gamepad
+# the vocals, which need a microphone. Frets on A (green), B (red), Y (yellow), X (blue) and LB
+# (orange), strumming on the D-pad, the whammy bar on the right stick, Star Power on Back. A real
+# guitar or drum kit keeps its own kind. 8 = drum kit, 0 = the SDK default (a gamepad).
+gamepad_subtype = 6
+# An Xbox 360 guitar reads its whammy bar half pressed until the bar first moves: at rest until then.
+guitar_whammy_rest = true
+# A controller or the keyboard playing guitar: the whammy bar at rest while the right stick is centred (or its keys
+# are up), and pressed as far as the stick goes from the centre, on either side. The stick's own value, 0 at rest,
+# is the bar held about half way for the game (GH Metallica's engine: its bar rests at -0.76 of the axis).
+gamepad_whammy_rest = true
+# A PC microphone 12 dB quieter than Windows records it (usb_microphone_1, off until GH5 Launcher's
+# Microphone chooses one): the game turns its own USB microphone down to the bottom of its
+# range for a song; a PC microphone at full level also hears the room and the speakers (GH Metallica's
+# first test, a condenser microphone at 0 dB: the pitch line jumped). The launcher's Gain row changes it.
+usb_microphone_1_gain = -12
+usb_microphone_2_gain = -12
+# Start pressed on a second controller: the game asks that controller to sign in, and only the first
+# has a profile. The sign-in UI closes as when the player cancels it, and the game shows its "not
+# signed in" message (sign in / continue without saving); the SDK default reported a sign-in change
+# and the game waited for that controller's profile forever on an empty screen.
+signin_ui_cancel = true
+# The other controllers are the profile's guests, as on the console (Name (1)): signed in, so the game
+# does not ask them to sign in, with no saves or settings of their own. The controller that presses a
+# button at the title screen is the profile's (gh5_profile_follows_press, src/players.cpp).
+signin_guests = true
+# The keyboard as a guitar (with mnk_mode; GH5 Launcher's Keyboard page changes them): the frets
+# on D, F, J, K and L (green, red, yellow, blue, orange: A, B, Y, X, LB), strumming on the up and down
+# arrows (the D-pad), Star Power on Space or Backspace (Back), Start on Enter or X, the whammy bar on the
+# right arrow (the right stick). The sticks' other keys are off: W A S D, F and K would move them with the
+# frets.
+keybind_a = "D"
+keybind_b = "F"
+keybind_y = "J"
+keybind_x = "K"
+keybind_left_shoulder = "L"
+keybind_dpad_up = "Up"
+keybind_dpad_down = "Down"
+keybind_back = "Space,Backspace"
+keybind_start = "Return,X"
+keybind_rstick_right = "Right"
+keybind_rstick_up = ""
+keybind_rstick_down = ""
+keybind_rstick_left = ""
+keybind_rstick_press = ""
+keybind_lstick_up = ""
+keybind_lstick_down = ""
+keybind_lstick_left = ""
+keybind_lstick_right = ""
+keybind_lstick_press = ""
+# The keyboard's frets strum as they are pressed with mnk_tap_target = "dpad_down" (the launcher's switch),
+# frets pressed within mnk_tap_window_ms of each other making one chord: one strum. Empty: off, the
+# arrows strum.
+mnk_tap_sources = "a,b,y,x,lb"
+mnk_tap_target = ""
+# The same for a controller playing guitar (its frets A, B, Y, X and LB) with gamepad_tap_target = "dpad_down" (the
+# launcher's switch on the controller's page), only in a song as the keyboard's (src/keyboard.cpp's gate).
+gamepad_tap_sources = "a,b,y,x,lb"
+gamepad_tap_target = ""
+# The game's screen effects over the 3D image (src/screen_fx.cpp; the note highway and the HUD are drawn after
+# them): false turns one off. Bloom: the glow around lights. Depth of field: the background blurred in some camera
+# shots and behind the menus and the pause menu. Grain: the film grain. Color: the color correction (each venue's
+# look, fades to black, the image greyed while the rock meter is red); with it off the grain is off too (in GH Van
+# Halen the grain was far stronger without the color pass). Vignette: darkened corners, where a venue turns it on.
+# true = as on the console.
+gh5_fx_bloom = true
+gh5_fx_depth_of_field = true
+gh5_fx_grain = true
+gh5_fx_color = true
+gh5_fx_vignette = true
 )";
 
 uint32_t Crc32(const std::vector<char>& data) {

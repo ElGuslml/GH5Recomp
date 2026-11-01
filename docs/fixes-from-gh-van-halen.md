@@ -35,10 +35,13 @@ ReXGlue's timebase runs at 50 MHz, so the game's clock ran 0.25 % fast and the a
 `src/timer.cpp`, a hook in `sub_823B08F0` (0x823B098C) keeps the reported frequency. **Off:** `gh5_timer_fix = false`.
 `gh5.toml` also sets `audio_maxqframes = 4`, the SDK's shortest output queue.
 
-**After a stutter** (GH Metallica's `docs/song-stutters.md`): the music is kept with the notes by `src/fmod_mix.cpp`
-(FMOD's polled output, `sub_8236C820`, updated on the SDK's audio worker after each frame the render client
-`sub_82876C08` reads; **off:** `gh5_fmod_on_audio_thread = false`), `audio_keep_time = true` and
-`audio_thread_priority = true` (SDK changes 62 and 63). GH5's FMOD is another build of the same FMOD Ex 4.1x.
+**After a stutter** (GH Metallica's `docs/song-stutters.md`): `audio_keep_time = true` and
+`audio_thread_priority = true` (SDK changes 62 and 63). GH Van Halen's third part, `src/fmod_mix.cpp` (FMOD's polled
+output `sub_8236C820` updated on the SDK's audio worker after each frame the render client `sub_82876C08` reads), is
+**off** (`gh5_fmod_on_audio_thread = false`, 2026-10-31): on, the music stuttered and dragged. GH5's FMOD thread
+updates once per block (188 a second, one block each), not every millisecond as GH Metallica's; moved to the worker,
+the update mixed 13 blocks a second of 188 and the sound device replayed the stale two-block ring (53 % of the
+submitted blocks were the one two before, in a dump of the title screen's output). Off, FMOD mixes all 188.
 
 ## Low latency audio
 

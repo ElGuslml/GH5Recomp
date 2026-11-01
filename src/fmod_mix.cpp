@@ -14,6 +14,12 @@
 // GH Van Halen's src/fmod_mix.cpp (GH Metallica's): its sub_82291F38 and sub_8223A3B0 are sub_8236C820 and
 // sub_82876C08 here. The render client is the same code; FMOD's output is another build of FMOD Ex 4.1x (both say
 // fmodexsrc41), the same blocks and calls with other structure offsets, which the hooks do not read.
+//
+// Off by default in GH5 (2026-10-31): the music stuttered and dragged with it. GH5's FMOD thread does not poll every
+// millisecond: it calls the update once per block (188 times a second, each mixing one block). With the update moved
+// to the worker, the worker's calls mixed 12-13 blocks a second of 188, and the sound device replayed the stale ring:
+// 53 % of the blocks the game submitted were the block two before (the mixed output dumped at the title screen;
+// local_docs/05-nxr-blur-audio.md). Off, FMOD's thread mixes all 188.
 
 #include <rex/cvar.h>
 #include <rex/hook.h>
@@ -23,10 +29,9 @@
 #include <cstdint>
 #include <mutex>
 
-REXCVAR_DEFINE_BOOL(gh5_fmod_on_audio_thread, true, "GH5",
-                    "FMOD mixes each block of sound on the SDK's audio worker as soon as the sound device has read "
-                    "the one before, so FMOD's own thread coming late loses nothing; false: FMOD's thread mixes, as on "
-                    "the console, and a late one leaves the music behind the notes until a pause");
+REXCVAR_DEFINE_BOOL(gh5_fmod_on_audio_thread, false, "GH5",
+                    "GH Van Halen's fix, not working in GH5 (the music stutters): FMOD's update on the SDK's audio "
+                    "worker after each frame the sound device reads; false: FMOD's thread mixes, as on the console");
 
 namespace {
 

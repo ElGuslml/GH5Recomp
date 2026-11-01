@@ -32,6 +32,29 @@ the library's checklist is `native_x_renderer/docs/integrating-a-game.md`.
   bars, the main menu, Quickplay, a song with the stage widened and the highway and HUD at 16:9; 584-761 draws a frame,
   none failed, 0 placeholder textures, GPU 1.3-1.9 ms a frame.
 
+## The title screen blurred, the band see-through (2026-10-31)
+
+**Symptom** (Gustavo): with NativeXRenderer the title screen was blurred all over and the band looked transparent,
+the drum kit too, on the title screen and in songs; the Xenos path was sharp and solid. The earlier check had the
+depth of field and the bloom turned off, which hid the blur.
+
+**Causes:**
+- The blur: GH5's depth of field and motion blur read a 320×180 depth the engine makes every other frame: the scene's
+  1280×720 depth resolved through a 640×360 4x MSAA depth surface over the same EDRAM (one sample of each 2×2), drawn
+  into a 320×180 depth surface and resolved again. NativeXRenderer read such aliased surfaces for color only (D95),
+  so the 640×360 resolve read a target nothing drew into.
+- The band: GH5 draws its scene over two frames. The first draws the stage and the crowd, resolves the color and the
+  depth, and shows the last frame's image again. The second restores both and draws the band and the screen effects
+  over them: it writes the depth resolve's words (read as k_8_8_8_8) through a color surface at the depth surface's
+  EDRAM (base 720), with the halves of each EDRAM tile swapped as a depth surface stores them (the clear and the
+  binding of the two targets at `0x8256A21C`, `0x82572350`). NativeXRenderer kept that color surface apart from the
+  depth surface, so the band was drawn against a cleared depth.
+
+**Fix:** NativeXRenderer D112 (the depth through an aliased MSAA surface too) and D113 (a depth target takes the
+words a color target drew at its EDRAM; here the depth of the resolve those words came from, pixel for pixel). The
+title screen and a Quickplay song look as on the Xenos path (the same camera shots compared: band, drum kit and
+cymbals solid). Nothing to turn off.
+
 ## Stutters at 160 FPS (2026-10-30)
 
 In a song no frame took over 15 ms at 3440×1440 / 160 FPS (the longest 7–9 ms). The longest frames were elsewhere:

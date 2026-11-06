@@ -51,6 +51,8 @@ OPTIONS IN GH5 Launcher
 - Internal resolution: the game's image rendered at 2x or 3x and fitted to the screen.
 - Anisotropic filtering: 16x by default (sharper textures at oblique angles).
 - Graphics API: DirectX 12 (recommended) or Vulkan.
+- DLC: install your own Xbox 360 downloadable content for Guitar Hero 5. "Choose folder..." looks for packages in
+  a folder and its subfolders; your files stay where they are.
 
 
 STEAM BIG PICTURE

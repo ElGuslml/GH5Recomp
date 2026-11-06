@@ -38,20 +38,22 @@ inline constexpr const char* kVersion = RECOMP_VERSION_STR;
 inline constexpr const char* kArtKicker = "";
 inline constexpr const char* kArtTitle = "Guitar Hero 5";
 // The mark in the header's logo while the game's icon is unknown: an icon's SVG paths in a 24-unit box, stroked as the
-// launcher's icons are (ui.cpp). A disc, until the game has its own.
+// launcher's icons are (ui.cpp). A guitar pick with a star (the mockup's, local_docs/design).
 inline constexpr const char* kBrandIcon =
-    "<circle cx='12' cy='12' r='9'/><circle cx='12' cy='12' r='2.5'/><path d='M12 3a9 9 0 0 1 9 9'/>";
+    "<path d='M12 21c-4-4-8-9-8-13 0-3 4-5 8-5s8 2 8 5c0 4-4 9-8 13z'/>"
+    "<path d='M12 6.5l1.2 2.6 2.8.3-2.1 1.9.6 2.8-2.5-1.4-2.5 1.4.6-2.8-2.1-1.9 2.8-.3z'/>";
 // The header's name beside the logo, on two lines (in capitals); an empty title: the art's (kArtTitle) alone.
-inline constexpr const char* kBrandTitle = "";
-inline constexpr const char* kBrandSubtitle = "Guitar Hero 5";
+inline constexpr const char* kBrandTitle = "Guitar Hero 5";
+inline constexpr const char* kBrandSubtitle = "Launcher";
 // Where the art under the pages (launcher\art\background.svg, 1280 x 760) is cropped in a window of another shape: the
-// point kept in view, as fractions of its width and height.
-inline constexpr float kArtFocusX = 0.75f;
-inline constexpr float kArtFocusY = 0.6f;
+// point kept in view, as fractions of its width and height. The winged skull: in a wide window it stays between the
+// header and the footer.
+inline constexpr float kArtFocusX = 0.5f;
+inline constexpr float kArtFocusY = 0.25f;
 // The logo's mark on a disc instead of a rounded square.
 inline constexpr bool kBrandRound = false;
 // The titles in capitals (the game's own texts that the launcher shows as titles).
-inline constexpr bool kUppercaseTitles = false;
+inline constexpr bool kUppercaseTitles = true;
 
 // --- The disc ---
 
@@ -145,8 +147,8 @@ inline constexpr std::array<Toggle, 5> kToggles{{
 // --- Downloadable content ---
 
 // The DLC page (page_dlc.cpp, dlc.h): Xbox 360 content packages, each installed by the game's --install_content tool
-// mode (SDK change 44) into its user data's content folder. Off until checked with this game's content.
-inline constexpr bool kHasDlcPage = false;
+// mode (SDK change 44) into its user data's content folder.
+inline constexpr bool kHasDlcPage = true;
 
 // --- The keyboard ---
 

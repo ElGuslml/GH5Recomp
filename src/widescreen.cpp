@@ -331,13 +331,28 @@ void GH5MeshSpriteHook(PPCRegister& r3) {
   }
 }
 
+// [[midasm_hook]] at 0x822FFF38 in sub_822FFA78, the highway's depth mask: first thing in the scene, one quad in the
+// highway's shape at the near plane, depth only, so the stage is not drawn under the board. Its vertices are x and y in
+// pixels of the 1280x720 canvas (8 bytes each), written before EndVertices (r3 = the device). Left as it was it kept
+// the width of the stretched canvas while the board drawn over it is narrowed: the stage stayed black on both sides of
+// the highway, blurred with it by the screen effects.
+void GH5HighwayMaskHook(PPCRegister& r3) {
+  uint8_t* base = gh5::GuestBase();
+  double factor = NarrowFactor(base);
+  if (factor != 1.0) {
+    uint32_t data = LoadWord(base, r3.u32 + kInlineVertexData);
+    uint32_t dwords = LoadWord(base, r3.u32 + kInlineVertexDwords);
+    NarrowVertices(base, factor, data, dwords / 2, 8);
+  }
+}
+
 // [[midasm_hook]] at the entry of sub_823D9828, which builds a perspective projection from its frustum at the near
 // plane (f1, f2 = left, right; f3, f4 = bottom, top; the row-vector convention). Its callers (the views of
 // sub_823E3478 and sub_82560930, among others) take the frustum's width from the camera's horizontal field of view and
 // its height from the view's aspect ratio, its size (1280x720 for the screen's views): a wider screen would just
 // stretch it. A 16:9 frustum is widened by the factor (Hor+: the vertical field of view kept, more seen at the sides),
-// the same narrowing the 2D layer gets in the stretched image, so 3D drawn to match it (the note highway's depth mask)
-// still matches. Other shapes (the crowd's impostors, 1:2) are left alone.
+// the same narrowing the 2D layer gets in the stretched image. Other shapes (the crowd's impostors, 1:2) are left
+// alone.
 void GH5FrustumHook(PPCRegister& f1, PPCRegister& f2, PPCRegister& f3, PPCRegister& f4) {
   double factor = gh5::g_aspect_factor.load(std::memory_order_relaxed);
   double height = std::fabs(f4.f64 - f3.f64);

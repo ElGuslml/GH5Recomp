@@ -127,6 +127,10 @@ address = 0x822FE92C   # bl EndVertices in sub_822FE350 (a sprite drawn as a gri
 name = "GH5MeshSpriteHook"
 registers = ["r3"]
 [[midasm_hook]]
+address = 0x822FFF38   # bl EndVertices in sub_822FFA78 (the highway's depth mask, a quad of 8 byte vertices: r3 = device)
+name = "GH5HighwayMaskHook"
+registers = ["r3"]
+[[midasm_hook]]
 address = 0x82303338   # bl DrawVerticesUP in sub_823031E8 (a 2D particle's quad: r5 = vertices, r6 = data, r7 = stride)
 name = "GH5ParticleHook"
 registers = ["r5", "r6", "r7"]

@@ -94,15 +94,23 @@ port would make them early. To be checked in a song with star power and a calibr
 
 ## Ultrawide
 
-The same as GH Van Halen's (`src/widescreen.cpp`, 8 hooks, each on the same instruction): every 16:9 perspective is
-widened (Hor+, `sub_823D9828`), and the 2D layer is narrowed to 16:9 in the center; outside a song black bars cover the
-sides. Checked with NativeXRenderer at 2560x1080 (factor 1.33): the bars at the first screen, the stage filling the
-screen in a song with the highway and HUD in the center. GH5's red border while the rock meter is red (with the
-screen effects' darkening under it) is drawn as 2D sprites, quarters of the 1280x720 canvas from each corner to the
-middle: narrowed with the HUD, it was a red frame around the middle 16:9. In a song, a sprite reaching a side and the
-top or bottom of the canvas and at least a quarter of it is left as it is, so the border covers the whole width
-(2026-10-30, at 2560x1080 and 3440x1440). **Off:** 16:9 in the launcher (`gh5_ultrawide = false`);
+The same as GH Van Halen's (`src/widescreen.cpp`, 8 hooks, each on the same instruction, and a ninth of GH5's own):
+every 16:9 perspective is widened (Hor+, `sub_823D9828`), and the 2D layer is narrowed to 16:9 in the center; outside a
+song black bars cover the sides. Checked with NativeXRenderer at 2560x1080 (factor 1.33): the bars at the first screen,
+the stage filling the screen in a song with the highway and HUD in the center. GH5's red border while the rock meter
+is red (with the screen effects' darkening under it) is drawn as 2D sprites, quarters of the 1280x720 canvas from each
+corner to the middle: narrowed with the HUD, it was a red frame around the middle 16:9. In a song, a sprite reaching a
+side and the top or bottom of the canvas and at least a quarter of it is left as it is, so the border covers the whole
+width (2026-10-30, at 2560x1080 and 3440x1440). **Off:** 16:9 in the launcher (`gh5_ultrawide = false`);
 `gh5_ultrawide_hud = false`; `gh5_menu_bars = false`; `gh5_ultrawide_overlays = false` (the border at 16:9 again).
+
+**The black band beside the highway (2026-11-05).** In ultrawide a soft black band ran along both sides of the highway;
+at 16:9 there was none. GH5 starts its scene with a depth only quad in the highway's shape at the near plane
+(`sub_822FFA78`, vertices in pixels of the 1280x720 canvas), so the stage is not drawn under the board. It went through
+none of the 2D layer's hooks, so it stayed as wide as the stretched canvas while the board over it was narrowed: the
+stage failed its depth test beside the highway, leaving the clear's black, blurred by the screen effects.
+`GH5HighwayMaskHook` narrows it with the rest (factor 1.34: NativeXRenderer and the Xenos path at 1720x720, a song and
+Party Play's difficulty list). It follows `gh5_ultrawide_hud`, as the board does.
 
 ## Turning off the screen effects
 

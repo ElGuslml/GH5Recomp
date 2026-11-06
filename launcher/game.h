@@ -73,11 +73,10 @@ inline constexpr int kFrameHeight = GAME_FRAME_HEIGHT;
 // --- Updates ---
 
 // This project's releases (updater.cpp): GitHub's API for them, newest first, and their page. Empty: the launcher
-// does not look for updates (a private repository), and its Updates page only shows the version. Once the repository
-// is public: "https://api.github.com/repos/<user>/GH5Recomp/releases?per_page=20" and
-// "https://github.com/<user>/GH5Recomp/releases".
-inline constexpr const char* kReleasesApi = "";
-inline constexpr const char* kReleasesPage = "";
+// does not look for updates, and its Updates page only shows the version. Set from the first release on, while the
+// repository is still private (the check fails until it is public, and the releases made then are found).
+inline constexpr const char* kReleasesApi = "https://api.github.com/repos/ElGuslml/GH5Recomp/releases?per_page=20";
+inline constexpr const char* kReleasesPage = "https://github.com/ElGuslml/GH5Recomp/releases";
 
 // --- The game's own options (a cvar each; empty: the game has no such option, and the launcher no row) ---
 
@@ -87,7 +86,7 @@ inline constexpr const char* kReleasesPage = "";
 inline constexpr bool kHasNativeXRenderer = GAME_HAS_NATIVE_X_RENDERER;
 // The renderer chosen until the player picks one (an options file without native_x_renderer): NativeXRenderer once a
 // full play test has gone through it (as in POTCAWE, its D56), the Xenos path until then.
-inline constexpr bool kNativeXRendererDefault = false;
+inline constexpr bool kNativeXRendererDefault = true;
 // The antialiasing row's DLAA (NativeXRenderer's D47: NVIDIA DLSS on the main 3D view, jittered): only for a game whose
 // hooks mark its views (native_x_renderer::BeginView and EndViewGeometry, as POTCAWE's). This one does not: DLAA would
 // turn SMAA and FXAA off and DLSS never run. The row offers SMAA, FXAA and none.

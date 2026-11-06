@@ -21,7 +21,7 @@
 #define LauncherExe "GH5 Launcher.exe"
 ; The project's public repository, once there is one ("https://github.com/<user>/GH5Recomp"): the links of the
 ; uninstall entry.
-#define RepoUrl ""
+#define RepoUrl "https://github.com/ElGuslml/GH5Recomp"
 
 [Setup]
 ; Never change the AppId: Windows knows the installation by it, and a newer installer finds the older one with it.

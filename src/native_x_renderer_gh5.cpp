@@ -80,11 +80,16 @@ const native_x_renderer::Profile& NativeXRendererProfile() {
     p.xdk_version = "2.0.8276";
     p.output_width = 1280;  // the presentation parameters come from a video-mode table at run time
     p.output_height = 720;
-    // The finished scene's copy, before the HUD and the note highway: GH Van Halen's composite called Resolve itself
-    // (its return address was the scene's mark). GH5's two-pass composite (sub_82643598) resolves through the render
-    // targets' helper sub_82571A30 -> sub_82571288, the path of every resolve (return addresses 0x82571324,
-    // 0x82571334, 0x8257136C): none of them is the scene's alone. 0 until a trace tells the scene's copy apart.
-    p.scene_resolve_caller = 0;
+    // The whole scene's copy, before the post-processing, the HUD and the note highway. GH5 resolves it through the
+    // render targets' helpers sub_82571A30 -> sub_82571288, so the outer caller names it too; the same pair also
+    // copies the 320x180 passes (the size rule leaves them out) and the composite's first pass into the same texture
+    // (the second 1280x720 copy of the frame: scene_resolve_once). Not a later copy: 0x8256A294 < 0x82570AE4, the
+    // finished image, is read only by the next frame, so it would antialias every other frame. The frames that draw
+    // only the stage and the crowd copy theirs from 0x82571B90: not taken, the band's frame restores them and copies
+    // the whole scene here.
+    p.scene_resolve_caller = 0x82571324;
+    p.scene_resolve_outer_caller = 0x82571A64;
+    p.scene_resolve_once = true;
     // The ultrawide hooks (src/widescreen.cpp) widen the 16:9 cameras by AspectFactor() and keep the 2D layer at
     // 16:9 in the center: NativeXRenderer may fill a wider output (native_x_renderer_fill_screen).
     p.widens_cameras = true;

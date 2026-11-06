@@ -4,8 +4,8 @@ The game's side of NativeXRenderer (`native_x_renderer/`, the library that hooks
 on the host). The hooks and the profile are in [`src/native_x_renderer_gh5.cpp`](../src/native_x_renderer_gh5.cpp);
 the library's checklist is `native_x_renderer/docs/integrating-a-game.md`.
 
-**Status (2026-10-30):** GH Van Halen's side (GH Metallica's map), translated. Not the default renderer:
-`--native_x_renderer=true` or the launcher's NativeXRenderer card.
+**Status (2026-11-06):** GH Van Halen's side (GH Metallica's map), translated. The default renderer; the launcher's
+Xenos card or `--native_x_renderer=false` turns it off.
 
 ## The addresses
 
@@ -20,11 +20,8 @@ the library's checklist is `native_x_renderer/docs/integrating-a-game.md`.
 - The device pointer is at `0x82D991B0`: the renderer's block `0x82D989C0` + 2032 (GH Van Halen's + 2292).
 - The engine has three BeginVertices / EndVertices pairs (`sub_822FE350`, `sub_822FFA78`, `sub_82303C00`); as in GH
   Van Halen, `inline_draw_end = 13444` covers them and EndVertices is not hooked.
-- **`scene_resolve_caller = 0`: no antialiasing yet.** GH Van Halen's composite called Resolve itself; GH5's
-  (`sub_82643598`, two passes) resolves through the render targets' helpers, the path of every resolve. A traced song
-  frame (`--native_x_renderer_trace`, F9) has the scene's 1280x720 copy after the 640x360 and 320x180 passes from
-  `0x82571324 < 0x82571B90`, but `sub_82571AB8` (the outer level) has 19 callers: not set until the menus are traced
-  too.
+- **The scene's copy, for SMAA and FXAA:** `scene_resolve_caller = 0x82571324`, `scene_resolve_outer_caller =
+  0x82571A64`, `scene_resolve_once = true`. See [Antialiasing](#antialiasing-2026-11-06).
 
 ## Checked
 
@@ -54,6 +51,32 @@ depth of field and the bloom turned off, which hid the blur.
 words a color target drew at its EDRAM; here the depth of the resolve those words came from, pixel for pixel). The
 title screen and a Quickplay song look as on the Xenos path (the same camera shots compared: band, drum kit and
 cymbals solid). Nothing to turn off.
+
+## Antialiasing (2026-11-06)
+
+**Symptom:** the launcher's antialiasing did nothing: the profile named no scene copy.
+
+**Cause:** GH Van Halen's composite called Resolve itself, and its return address marked the scene. GH5 resolves
+through the render targets' helpers (`sub_82571A30` -> `sub_82571288`), the path of 13 call sites, and draws its scene
+over two frames:
+
+| Frame | 1280x720 copies, in order |
+|---|---|
+| Stage and crowd | the scene without the band, from `0x82571B90`; shows the last frame's image with the 2D layer over it |
+| Band and composite | **the whole scene, from `0x82571A64` (the first)**; the composite's first pass, the same callers and texture; the finished image, `0x8256A294 < 0x82570AE4`, read only by the next frame |
+
+**Fix:** the first copy of the second kind, named by both callers. The size rule leaves out the 320x180 passes with
+the same callers, and `scene_resolve_once` the composite's pass. It is before the bloom and the depth of field, so
+they read the smoothed scene, and both frames show it: the next frame's image comes from it too. The finished image
+would not do: it reaches the screen only every other frame.
+
+**Checked:** one frame of RenderDoc, SMAA's input against its output from the same replay: 1.91 % of the pixels
+change, on the edges, the mean brightness stays. Traces of the main menu, the band lobby, a song, the pause menu and
+the first screen: the 2D layer and the note highway are always drawn after the copy, so they stay sharp. The same
+with every screen effect off. Not smoothed: the lobby's character cards (drawn apart and placed with the 2D layer);
+the song list has no 3D scene and no such copy.
+
+**To turn it off:** the launcher's Antialiasing, or `native_x_renderer_antialiasing = "off"`.
 
 ## Stutters at 160 FPS (2026-10-30)
 

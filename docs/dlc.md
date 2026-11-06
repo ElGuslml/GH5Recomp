@@ -1,7 +1,7 @@
 # Downloadable content (DLC)
 
-**Status: the launcher's page is on. A package made for Guitar Hero 5 installs and the game finds its manifest; its songs
-in the list are still to be confirmed.**
+**Status: working (2026-11-06).** A package made for Guitar Hero 5, the Megadeth Track Pack, installs from GH5 Launcher's DLC
+page and its songs show in the game.
 
 GH5 Launcher's DLC page installs Xbox 360 content packages (STFS: LIVE, PIRS or CON) with the game itself:
 `GH5Recomp.exe --install_content=<package>` extracts one into
@@ -20,9 +20,8 @@ Pack):
 
 So a package for another Guitar Hero does nothing here.
 
-The Megadeth Track Pack (GH5's own format: `bmanifest_*.pak.xen`, `bdlc1238_song.pak.xen`, three songs) installs from the page,
-and with it the game's request for a manifest no longer fails. Whether its songs show in the list and play is still to be
-checked.
+The Megadeth Track Pack is GH5's own format (`bmanifest_*.pak.xen`, `bdlc1238_song.pak.xen`, three songs): with it the game's
+request for a manifest no longer fails, and its songs are in the game.
 
 ## Turning it off
 

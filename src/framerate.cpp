@@ -118,6 +118,13 @@ double FrameSeconds() { return 1.0 / VblankRate(); }
 // The scripts that run every frame (below), and the name of the script a wait belongs to (+60 of the wait).
 constexpr uint32_t kStarPowerDrainScript = 0x74B936AB;
 constexpr uint32_t kButtonCheckerScript = 0x716BADDC;
+// "begin BandManager_PrepareBandMemberForRender Wait 1 gameframe repeat" (GH Metallica's BandManager_PrepareBandForRender
+// under another name and key): the script function (sub_821B5408 -> sub_821B46E8) has each musician place his
+// instrument's strings (sub_821BA5D8: each string's start, end, the point the fretting finger presses and the point that
+// vibrates, in the world, from the instrument's bones this frame). Held to 60 passes a second, the strings were placed
+// every second or third frame at 120 or 160 FPS and stayed where the guitar had been in between: they shook around a
+// guitar that moved (Gustavo in GH Metallica, 2026-11-04: his character's, while playing).
+constexpr uint32_t kBandRenderScript = 0x02B91F04;
 
 uint32_t WaitingScript(uint32_t wait) {
   auto* kernel = rex::system::kernel_state();
@@ -150,7 +157,7 @@ void GH5FrameWaitSetHook(PPCRegister& r3, PPCRegister& r4) {
   // 60 passes a second the fall took 266 ms at 160 FPS (Gustavo saw it slow; a temporary probe measured it), 100 ms
   // every frame, as at 60.
   const uint32_t waiting = WaitingScript(r3.u32);
-  if (waiting == kStarPowerDrainScript || waiting == kButtonCheckerScript) {
+  if (waiting == kStarPowerDrainScript || waiting == kButtonCheckerScript || waiting == kBandRenderScript) {
     std::lock_guard lock(g_frame_waits_mutex);
     g_frame_waits.erase(r3.u32);
     return;
@@ -429,5 +436,26 @@ void GH5LoadingSpinnerHook(PPCRegister& r10) {
 void GH5LoadingWaveHook(PPCRegister& step) {
   if (HighRate()) {
     step.f64 = double(float(step.f64 * FrameStepScale()));
+  }
+}
+
+// The strings' vibration: each frame sub_821B38C8 multiplies each string's amplitude by 0.99 (the script global
+// 0xB70CCCA3) and adds the frame's time to its timer; sub_821BA5D8 places each string displaced by amplitude *
+// sin(2 pi * 62 Hz (0xFD146572) * timer). At 60 FPS a 62 Hz vibration sampled 60 times a second shows as a slow wobble of
+// 62 - 60 = 2 Hz, what the console shows; placed every frame above 60 (kBandRenderScript), the real 62 Hz would show, and
+// the 0.99 a frame fades it faster. Above 60 Hz the frequency is the one 60 FPS shows and the fade 0.99 per 60th of a
+// second (GH Metallica's).
+// [[midasm_hook]] 0x821BA658 (sub_821BA5D8: after the call returning the frequency, before "fmr f29,f1"): f1 = Hz.
+void GH5StringFrequencyHook(PPCRegister& f1) {
+  if (HighRate()) {
+    f1.f64 -= 60.0 * std::round(f1.f64 / 60.0);
+  }
+}
+
+// [[midasm_hook]] 0x821B3904 (sub_821B38C8: after the call returning the fade, before the strings' loop): f1 = the
+// amplitude's factor each frame.
+void GH5StringFadeHook(PPCRegister& f1) {
+  if (HighRate() && f1.f64 > 0.0) {
+    f1.f64 = double(float(std::pow(f1.f64, 60.0 / VblankRate())));
   }
 }

@@ -114,11 +114,18 @@ audio_wasapi_exclusive_queue = 2
 # frames). "immediate" and false = V-Sync off (tearing, or a G-Sync / FreeSync display following the game).
 native_x_renderer_present_mode = "vsync"
 vblank_follows_display = true
+# Where the vertical blank runs on the SDK's timer (a G-Sync / FreeSync display, V-Sync off): its ticks within a few
+# microseconds of their time (700 us of spinning each; without, up to half a millisecond late), as the display shows
+# each frame when it comes.
+vblank_timer_spin_us = 700
 # Report a controller (and the keyboard's emulated one) as a guitar: the game gives a plain gamepad
 # the vocals, which need a microphone. Frets on A (green), B (red), Y (yellow), X (blue) and LB
 # (orange), strumming on the D-pad, the whammy bar on the right stick, Star Power on Back. A real
 # guitar or drum kit keeps its own kind. 8 = drum kit, 0 = the SDK default (a gamepad).
 gamepad_subtype = 6
+# A PS3 Guitar Hero guitar (a CRKD guitar on its P3 setting too): yellow and blue, swapped on that protocol, put right,
+# and its whammy bar, which rests at the middle of its axis, at rest there.
+guitar_ps3_protocol = true
 # An Xbox 360 guitar reads its whammy bar half pressed until the bar first moves: at rest until then.
 guitar_whammy_rest = true
 # A controller or the keyboard playing guitar: the whammy bar at rest while the right stick is centred (or its keys
@@ -169,6 +176,11 @@ keybind_lstick_press = ""
 # arrows strum.
 mnk_tap_sources = "a,b,y,x,lb"
 mnk_tap_target = ""
+# The SDK's developer keys (F3 the debug overlay, F4 its settings window, ` the console) do nothing, so that
+# the keyboard can play with them (a player's request in GH Metallica, 2026-11-02); GH5 Launcher's
+# Settings > Game > Debug keys turns them on. A key on one of the keyboard's controls plays only that control either
+# way, F7 (the achievements) included.
+debug_hotkeys = false
 # The same for a controller playing guitar (its frets A, B, Y, X and LB) with gamepad_tap_target = "dpad_down" (the
 # launcher's switch on the controller's page), only in a song as the keyboard's (src/keyboard.cpp's gate).
 gamepad_tap_sources = "a,b,y,x,lb"

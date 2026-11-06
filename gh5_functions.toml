@@ -74,6 +74,14 @@ registers = ["r3", "r11"]
 address = 0x8255AE44   # cmpld cr6,r3,r30 (sub_8255ABE8: until the other counter reaches the frame's last vertical blank)
 name = "GH5VblankWait2Hook"
 registers = ["r3", "r30"]
+# The game's two callbacks advance the counters those loops wait on: an event set right after each advance wakes the
+# waiting render thread at once (src/thread_waits.cpp).
+[[midasm_hook]]
+address = 0x823B042C   # lwz r10,40(r11) (sub_823B03F0, the swap callback: after the swap counter 0x82D7D540's advance)
+name = "GH5SwapSignalHook"
+[[midasm_hook]]
+address = 0x823B03D8   # and r9,r4,r8 (sub_823B0378, the vertical blank callback: after the counter 0x82D7D530's advance)
+name = "GH5VblankSignalHook"
 [[midasm_hook]]
 address = 0x82567DBC   # lwz r11,0(r31) (sub_82567D20: the main thread waiting for a job group, after a pass)
 name = "GH5JobGroupWaitHook"
@@ -93,6 +101,13 @@ address = 0x823B098C   # cmplw cr6,r11,r7 (sub_823B08F0: r11 = the reported freq
 name = "GH5TimerFrequencyHook"
 registers = ["r7"]
 
+
+# A slot's kind of controller (a guitar, the drums, the singer) follows the controller played (src/players.cpp): the
+# game asks for it only when the port's controller connects, and the keyboard shares slot 0 with the first controller.
+[[midasm_hook]]
+address = 0x8248A4A8   # mflr r12 (entry of sub_8248A4A8: a controller port's update; r3 = the port)
+name = "GH5ControllerPortHook"
+registers = ["r3"]
 
 # Ultrawide (src/widescreen.cpp), with gh5_ultrawide: the projection of every 16:9 view is widened (Hor+: the 3D views
 # see more at the sides; their aspect ratio is the view's size, not the SetScreen aspect), and the screen elements'
@@ -254,3 +269,14 @@ registers = ["r11"]
 [[midasm_hook]]
 address = 0x82413B60   # stfd f0,-30400(r7) (sub_82413AA0: the main thread's frame, before its wait)
 name = "GH5QuitPromptHook"
+
+# Above 60 Hz (src/framerate.cpp): the strings' 62 Hz vibration, which 60 FPS shows as a 2 Hz wobble, and their fade of
+# 0.99 a frame, as at 60 (GH Metallica's).
+[[midasm_hook]]
+address = 0x821BA658   # lis r11,-32256 (sub_821BA5D8, after the call returning the strings' frequency, 62 Hz)
+name = "GH5StringFrequencyHook"
+registers = ["f1"]
+[[midasm_hook]]
+address = 0x821B3904   # lwz r11,284(r31) (sub_821B38C8, after the call returning the strings' fade, 0.99 a frame)
+name = "GH5StringFadeHook"
+registers = ["f1"]

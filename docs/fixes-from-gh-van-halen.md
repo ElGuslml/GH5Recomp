@@ -74,6 +74,41 @@ controller that presses at the title screen (`src/players.cpp`) is **not active 
 starts in Party Play (songs playing while the players join), which is not told apart yet. The first controller
 connected plays with the profile.
 
+## GH Metallica's of 2026-11-03/05
+
+Moved on 2026-11-05 to GH Metallica's versions: SDK `0a7c86c` (changes 69-72, on its `ghmetal` branch), NativeXRenderer
+`6117e82` (D118-D125), RecompLauncher `1ee6325` (3.13.1). The game's side, with this game's addresses:
+
+- **V-Sync with G-Sync or FreeSync** (GH Metallica's `docs/vsync.md`): the SDK's timer, for a display whose vertical
+  blanks follow the game's frames, ticks within microseconds (`vblank_timer_spin_us = 700`, SDK change 70), 0.25 % under
+  the display's exact rate; the render thread wakes on events the game's swap and vertical blank callbacks set
+  (`src/thread_waits.cpp`, hooks at `0x823B042C` in `sub_823B03F0` and `0x823B03D8` in `sub_823B0378`). With V-Sync off
+  the game runs 0.25 % under the display's exact rate when the frame rate chosen is that rate (`src/options.cpp`).
+  **Off:** `vblank_timer_spin_us = 0`.
+- **Alt+Tab from fullscreen** no longer closes the game (NativeXRenderer D125).
+- **Each slot's kind of controller follows the one played**: the game asks a port for its kind only when its controller
+  connects, and the keyboard shares slot 0 with the first controller. When the SDK finds the slot played on another
+  kind, a hook at the entry of the port's update (`sub_8248A4A8`) has the game ask again, outside a song
+  (`src/players.cpp`). Not tried with a second controller here. **Off:** `gh5_kind_follows_controller = false`.
+- **The keyboard's controls**: Shift, Ctrl and Alt as keys of their own, F1-F12 too; the SDK's developer keys are off
+  (`debug_hotkeys = false`; the launcher's Settings > Game > Debug keys turns them on).
+- **Guitars**: `guitar_ps3_protocol = true` (a PS3 Guitar Hero guitar, a CRKD guitar on its P3 setting); the launcher
+  keeps every controller open and assigns any axis to the whammy bar and the tilt (SDK changes 71 and 72, launcher 3.12
+  and 3.13). Not tried with those guitars here.
+- **The guitars' strings above 60 FPS**: the script that places them is not held to 60 passes a second (`0x02B91F04`,
+  `BandManager_PrepareBandMemberForRender` then `Wait 1 gameframe`): held, they stayed where the guitar had been in
+  between and shook around a moving guitar. Placed every frame, their vibration (62 Hz, which 60 FPS shows as a 2 Hz
+  wobble) is kept to that wobble and its fade to 0.99 per 60th of a second (hooks at `0x821BA658` in `sub_821BA5D8` and
+  `0x821B3904` in `sub_821B38C8`).
+- **The audio's spacing stays**: GH Metallica and GH Van Halen went to `audio_callback_min_interval_us = 0` because FMOD
+  mixes on their audio worker. Here FMOD mixes on its own thread, which needs the 3 ms (their own note says so): 0 would
+  bring the noise back. SDK change 69 (`audio_keep_time` never drops a frame the device is about to take) comes with the
+  move.
+- **Not ported**: GH Metallica's Havok step. `sub_82634770` steps the world by a fixed 1/60 s here too, but stepped by
+  the frame's own time above 60 (a hook at `0x8263479C`, tried on 2026-11-05) the hair and coats stretched in long
+  spikes at 160 FPS: this game also keeps the step over the frame's time (+80 of the object). It stays as it was, as it
+  has been played: the world runs at 160 / 60 of its speed at 160 FPS.
+
 ## Frame rates above 60
 
 **Experimental.** `gh5_frame_rate` (60, 120, 144, 160, 165, 240; the launcher's frame rate row) sets the vertical

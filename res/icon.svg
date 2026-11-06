@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256" width="256" height="256">
+  <!-- The GH5Recomp icon: a guitar pick with a skull on a riveted steel medallion, in GH5 Launcher's colors
+       (launcher/palette.h); the skull is the one of its art (launcher/art/background.svg), drawn for this project (no art
+       from the game), GHMetalRecomp's and GHVanHRecomp's icon with its own pick. res/make_icon.mjs builds res/icon.ico from
+       this file (40 px and up) and icon_small.svg (16-32 px). -->
+  <defs>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4f6f8"/>
+      <stop offset="0.45" stop-color="#9aa1a9"/>
+      <stop offset="1" stop-color="#3b4046"/>
+    </linearGradient>
+    <radialGradient id="stage" cx="0.5" cy="0.4" r="0.62">
+      <stop offset="0" stop-color="#2c2c33"/>
+      <stop offset="0.6" stop-color="#151518"/>
+      <stop offset="1" stop-color="#0a0a0c"/>
+    </radialGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8fe9e3"/>
+      <stop offset="0.5" stop-color="#35c9c1"/>
+      <stop offset="1" stop-color="#14716c"/>
+    </linearGradient>
+    <radialGradient id="bone" cx="0.38" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#fffdf6"/>
+      <stop offset="0.55" stop-color="#ece6d5"/>
+      <stop offset="1" stop-color="#bdb39c"/>
+    </radialGradient>
+    <radialGradient id="rivet" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#565c63"/>
+    </radialGradient>
+    <clipPath id="inside">
+      <circle cx="128" cy="128" r="88"/>
+    </clipPath>
+    <circle id="stud" r="4.6" fill="url(#rivet)" stroke="#202327" stroke-width="1.5"/>
+    <path id="ray" d="M 128,128 L 117,20 L 139,20 Z"/>
+    <path id="sparkle" d="M 0,-9 L 2,-2 L 9,0 L 2,2 L 0,9 L -2,2 L -9,0 L -2,-2 Z" fill="#e8e2d0"/>
+    <path id="pick" d="M 128,204 C 100,178 66,140 66,104 C 66,74 98,58 128,58 C 158,58 190,74 190,104
+                       C 190,140 156,178 128,204 Z"/>
+    <path id="socket" d="M-50 -22 C-50 -40 -30 -46 -14 -36 C-8 -30 -8 -16 -14 -6 C-20 2 -36 4 -44 -2 C-50 -8 -51 -14 -50 -22 Z"/>
+  </defs>
+
+  <!-- Medallion: a steel rim with eight rivets, the stage dark in the middle. -->
+  <circle cx="128" cy="128" r="106" fill="url(#steel)" stroke="#1b1d20" stroke-width="4"/>
+  <circle cx="128" cy="128" r="101" fill="none" stroke="#ffffff" stroke-opacity="0.4" stroke-width="1.5"/>
+  <use xlink:href="#stud" transform="translate(218.5 165.5)"/>
+  <use xlink:href="#stud" transform="translate(165.5 218.5)"/>
+  <use xlink:href="#stud" transform="translate(90.5 218.5)"/>
+  <use xlink:href="#stud" transform="translate(37.5 165.5)"/>
+  <use xlink:href="#stud" transform="translate(37.5 90.5)"/>
+  <use xlink:href="#stud" transform="translate(90.5 37.5)"/>
+  <use xlink:href="#stud" transform="translate(165.5 37.5)"/>
+  <use xlink:href="#stud" transform="translate(218.5 90.5)"/>
+  <circle cx="128" cy="128" r="90" fill="url(#stage)" stroke="#1b1d20" stroke-width="4"/>
+
+  <!-- Stage light: rays from the middle, as in the launcher's art. -->
+  <g clip-path="url(#inside)" fill="#ffffff" fill-opacity="0.05">
+    <use xlink:href="#ray"/>
+    <use xlink:href="#ray" transform="rotate(30 128 128)"/>
+    <use xlink:href="#ray" transform="rotate(60 128 128)"/>
+    <use xlink:href="#ray" transform="rotate(90 128 128)"/>
+    <use xlink:href="#ray" transform="rotate(120 128 128)"/>
+    <use xlink:href="#ray" transform="rotate(150 128 128)"/>
+    <use xlink:href="#ray" transform="rotate(180 128 128)"/>
+    <use xlink:href="#ray" transform="rotate(210 128 128)"/>
+    <use xlink:href="#ray" transform="rotate(240 128 128)"/>
+    <use xlink:href="#ray" transform="rotate(270 128 128)"/>
+    <use xlink:href="#ray" transform="rotate(300 128 128)"/>
+    <use xlink:href="#ray" transform="rotate(330 128 128)"/>
+  </g>
+
+  <!-- The pick: a cream border around it, then the teal pick. -->
+  <use xlink:href="#pick" fill="none" stroke="#e8e2d0" stroke-width="16" stroke-linejoin="round"/>
+  <use xlink:href="#pick" fill="url(#teal)" stroke="#0d0d0f" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M 84,100 C 86,82 104,70 126,68" fill="none" stroke="#ffffff" stroke-opacity="0.45" stroke-width="5"
+        stroke-linecap="round"/>
+
+  <!-- The skull, its teeth and glowing eyes. -->
+  <g transform="translate(128 127) scale(0.5)">
+    <path d="M-42 46 C-46 70 -32 98 0 100 C32 98 46 70 42 46 Z" fill="url(#bone)" stroke="#0b0c0e" stroke-width="6" stroke-linejoin="round"/>
+    <rect x="-32" y="42" width="64" height="38" rx="8" fill="#0b0c0e"/>
+    <path d="M0 -108 C42 -108 68 -82 66 -42 C65 -26 60 -18 56 -10 C64 -4 66 8 58 16 C52 22 46 24 42 34 C40 42 34 48 26 50 L-26 50 C-34 48 -40 42 -42 34 C-46 24 -52 22 -58 16 C-66 8 -64 -4 -56 -10 C-60 -18 -65 -26 -66 -42 C-68 -82 -42 -108 0 -108 Z" fill="url(#bone)" stroke="#0b0c0e" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M40 -98 C64 -82 70 -54 62 -26 C60 -18 56 -12 54 -10 C58 -6 60 4 54 12 C50 18 46 22 42 32 C40 22 44 12 46 4 C50 -12 52 -36 48 -60 C46 -76 44 -88 40 -98 Z M-58 -14 C-50 -18 -46 -10 -50 -2 C-54 2 -58 -4 -58 -14 Z M30 30 C38 26 44 30 40 40 C36 46 30 46 26 46 C28 40 28 34 30 30 Z M-30 30 C-38 26 -44 30 -40 40 C-36 46 -30 46 -26 46 C-28 40 -28 34 -30 30 Z" fill="#c2b9a3"/>
+    <use xlink:href="#socket" fill="#0b0c0e"/>
+    <use xlink:href="#socket" fill="#0b0c0e" transform="scale(-1 1)"/>
+    <circle cx="-30" cy="-18" r="9" fill="#35c9c1"/>
+    <circle cx="30" cy="-18" r="9" fill="#35c9c1"/>
+    <circle cx="-30" cy="-18" r="4" fill="#e9fffd"/>
+    <circle cx="30" cy="-18" r="4" fill="#e9fffd"/>
+    <path d="M0 6 C-4 14 -13 22 -11 31 C-9 35 -3 33 0 28 C3 33 9 35 11 31 C13 22 4 14 0 6 Z" fill="#0b0c0e"/>
+    <g fill="#ece6d5" stroke="#0b0c0e" stroke-width="1.8">
+      <path d="M-28 46 h6 v9 q0 4 -3 4 q-3 0 -3 -4 z"/>
+      <path d="M-21 46 h6 v9 q0 4 -3 4 q-3 0 -3 -4 z"/>
+      <path d="M-14 46 h6 v9 q0 4 -3 4 q-3 0 -3 -4 z"/>
+      <path d="M-7 46 h6 v9 q0 4 -3 4 q-3 0 -3 -4 z"/>
+      <path d="M0 46 h6 v9 q0 4 -3 4 q-3 0 -3 -4 z"/>
+      <path d="M7 46 h6 v9 q0 4 -3 4 q-3 0 -3 -4 z"/>
+      <path d="M14 46 h6 v9 q0 4 -3 4 q-3 0 -3 -4 z"/>
+      <path d="M21 46 h6 v9 q0 4 -3 4 q-3 0 -3 -4 z"/>
+      <path d="M-24.5 76 h6 v-9 q0 -4 -3 -4 q-3 0 -3 4 z"/>
+      <path d="M-17.5 76 h6 v-9 q0 -4 -3 -4 q-3 0 -3 4 z"/>
+      <path d="M-10.5 76 h6 v-9 q0 -4 -3 -4 q-3 0 -3 4 z"/>
+      <path d="M-3.5 76 h6 v-9 q0 -4 -3 -4 q-3 0 -3 4 z"/>
+      <path d="M3.5 76 h6 v-9 q0 -4 -3 -4 q-3 0 -3 4 z"/>
+      <path d="M10.5 76 h6 v-9 q0 -4 -3 -4 q-3 0 -3 4 z"/>
+      <path d="M17.5 76 h6 v-9 q0 -4 -3 -4 q-3 0 -3 4 z"/>
+    </g>
+    <path d="M22 -106 L15 -88 L24 -78 L16 -62 M15 -88 L6 -82 M24 -78 L33 -74" fill="none" stroke="#0b0c0e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Sparkles -->
+  <use xlink:href="#sparkle" transform="translate(70 70)"/>
+  <use xlink:href="#sparkle" transform="translate(190 178) scale(0.75)"/>
+</svg>

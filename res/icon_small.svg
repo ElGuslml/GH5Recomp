@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- icon.svg simplified for 16-32 px: no rivets, rays, sparkles or teeth; a thicker rim, a bigger pick and bigger eyes. -->
+  <defs>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4f6f8"/>
+      <stop offset="0.5" stop-color="#a3aab1"/>
+      <stop offset="1" stop-color="#4a5057"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8fe9e3"/>
+      <stop offset="1" stop-color="#23a8a0"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="128" cy="128" r="122" fill="url(#steel)" stroke="#1b1d20" stroke-width="8"/>
+  <circle cx="128" cy="128" r="98" fill="#131316" stroke="#1b1d20" stroke-width="8"/>
+
+  <g transform="translate(128 130) scale(1.16) translate(-128 -131)">
+    <path d="M 128,204 C 100,178 66,140 66,104 C 66,74 98,58 128,58 C 158,58 190,74 190,104
+             C 190,140 156,178 128,204 Z" fill="url(#teal)" stroke="#0d0d0f" stroke-width="9" stroke-linejoin="round"/>
+    <g transform="translate(128 118) scale(0.46)">
+      <path d="M-42 46 C-46 70 -32 98 0 100 C32 98 46 70 42 46 Z" fill="#f4efe2" stroke="#0b0c0e" stroke-width="12" stroke-linejoin="round"/>
+      <path d="M0 -108 C42 -108 68 -82 66 -42 C65 -26 60 -18 56 -10 C64 -4 66 8 58 16 C52 22 46 24 42 34 C40 42 34 48 26 50 L-26 50 C-34 48 -40 42 -42 34 C-46 24 -52 22 -58 16 C-66 8 -64 -4 -56 -10 C-60 -18 -65 -26 -66 -42 C-68 -82 -42 -108 0 -108 Z" fill="#f4efe2" stroke="#0b0c0e" stroke-width="12" stroke-linejoin="round"/>
+      <circle cx="-30" cy="-16" r="24" fill="#0b0c0e"/>
+      <circle cx="30" cy="-16" r="24" fill="#0b0c0e"/>
+      <path d="M0 2 L-13 34 L13 34 Z" fill="#0b0c0e"/>
+    </g>
+  </g>
+</svg>

@@ -1,4 +1,8 @@
-# GH5Recomp
+<p align="center">
+  <img src="res/icon.svg" width="200" alt="GH5Recomp icon">
+</p>
+
+<h1 align="center">GH5Recomp</h1>
 
 A static recompilation of **Guitar Hero 5** (Xbox 360) to native Windows, built on the
 [ReXGlue SDK](https://github.com/rexglue/rexglue-sdk). The game's PowerPC code is translated to C++ and

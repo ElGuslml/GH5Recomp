@@ -176,6 +176,12 @@ registers = ["r3", "r4"]
 address = 0x8257E7DC   # addi r11,r11,-1 (sub_8257E798: a game-frame wait's count above 0, r3 = the wait)
 name = "GH5FrameWaitCountHook"
 registers = ["r3", "r11"]
+# The drummer's script waits 1 frame, a timed wait: above 60 Hz a real frame, so that the step it measures is what a pass took.
+[[midasm_hook]]
+address = 0x824AB938   # Wait (sub_824AB790), units frame and frames: lis r11,-32256 (r30 = the script)
+name = "GH5DrummerWaitHook"
+registers = ["r30"]
+jump_address_on_true = 0x824AB978   # its game-frame wait, the same N
 # Button presses polled by scripts (ControllerMake) last one frame: a script whose waits are held above 60 Hz is given
 # the presses of the frames it skipped.
 [[midasm_hook]]

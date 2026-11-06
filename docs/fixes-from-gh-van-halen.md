@@ -122,13 +122,33 @@ speed what counts frames: the vblank clocks (`sub_82637918`), the scripts' `Wait
 scripts poll (`sub_824B58C8`, ControllerMake `sub_824C06B0`), the whammy on a sustain (`sub_821E6DB0`,
 `sub_821E1A38`, `sub_821E96C8`) and the loading screen's animations (`sub_825E1320`, `sub_82427348`, `sub_825E1698`).
 Star power's drain (script `0x74B936AB`, the same in GH5) is left to run every frame. GH Van Halen's frame time hook
-is not needed: GH5 measures the frame's time on the time base. **Off:** 60 in the launcher. Not tested above 60 here
-yet.
+is not needed: GH5 measures the frame's time on the time base. **Off:** 60 in the launcher. Played at 160 FPS with a guitar (2026-11-06).
 
 **The frets falling back (2026-11-05).** On a hit the fret heads rise 20 pixels and fall back in 0.1 s; at 160 FPS the
 fall took 0.27 s. Each pass of the script `button_checker` (`0x716BADDC`, through `sub_821E8500`) lowers them by the
 frame's time, and the fix above held that script to 60 passes a second. It now runs every frame, as star power's drain:
 100 ms at 160 FPS as at 60 (measured in a Quickplay song).
+
+**Self-timed scripts (2026-11-06).** Five scripts that add the frame's time to their own timers each pass (`0xEC23DF7E`,
+`0xE66D1DA1`, `0x4E850682`, `0xE20DF41E`, `0x3E4FDDAF`) ran their timers at 60 / 160 of the speed at 160 FPS, held to 60 passes a
+second. They run every frame now (`kSelfTimedScripts`). Left out: the jam studio's arrows, `0xCFDDF140`, which also steps by the
+pass: at 160 FPS its scroll stays slower than at 60.
+
+**Camera cuts above 60 (2026-11-06).** At 160 FPS each camera cut showed, for a few frames, a strange image in the top left
+of the screen, then the stage from a camera not yet placed; at 60 nothing (Gustavo, frame by frame in a video). GH5 draws
+the stage and the crowd in one frame and the band in the next (`IsPrimaryFrame`, `sub_821B6658`), and script `CAD261DF`
+waits 2 game frames in a primary frame and 1 in the other so that what follows lands in one kind of frame. The script waits
+above turned those into time, 3 or 5 frames at 160 FPS in either kind. The image was the venue screens' 512x512 surface,
+left in EDRAM by a frame with no scene. That script and the seven that go on from it in whole frames run every frame now
+(`kFrameExactScripts`): the frames with no scene went from 18 runs in 8000 frames to none. Only GH5 and GH WoR have
+`IsPrimaryFrame`. Nothing to turn off: at 60 FPS nothing changes.
+
+**The drummer above 60 (2026-11-06).** At 160 FPS the drummer moved in slow motion and missed the drums; at 60 he kept the
+song. His script (`0x473164C7`) counts down the time to each hit by its step, two frames' `GetFrameLength` (33.369 ms to begin
+with) across a `Wait 1 frame`, and that wait is a timed one, 1/60 s. At 160 a step of 12.5 ms took 37.5: his timers ran at a
+third of the speed. Above 60 Hz this script's waits are real frames now (`GH5DrummerWaitHook` at `0x824AB938`, `kDrummerScript`),
+as GH WoR's script has them: 80 passes a second at 160 FPS (measured), so his arms update more often than on the console.
+**Off:** 60 in the launcher.
 
 ## The crowd's claps on star power
 

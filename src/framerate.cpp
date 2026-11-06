@@ -125,6 +125,35 @@ constexpr uint32_t kButtonCheckerScript = 0x716BADDC;
 // every second or third frame at 120 or 160 FPS and stayed where the guitar had been in between: they shook around a
 // guitar that moved (Gustavo in GH Metallica, 2026-11-04: his character's, while playing).
 constexpr uint32_t kBandRenderScript = 0x02B91F04;
+// GH5 draws the stage and the crowd in one frame and the band in the next (IsPrimaryFrame, sub_821B6658, from a count of
+// real frames in sub_82413AA0). Script 0xCAD261DF waits 2 game frames in a primary frame and 1 in the other, so that what
+// follows lands in one kind of frame, and the seven below that call it go on in whole frames: a camera cut's screen
+// effect, and the band's clips and moves, "wait 1 game frame, change the musician, wait 1, change him back" (their other
+// waits test the song's time, so running every frame does not speed them up). The cut itself, 0xA5BB57BB, calls it and
+// has no wait of its own. Held to 60 passes a second a wait of 1 lasted 3 frames at 160 FPS and fell in either kind:
+// each cut showed 1 to 5 frames with no scene (the venue screens' 512x512 surface over the last image, from EDRAM base 0),
+// the stage from a camera not yet placed, then the new shot. Measured: 18 such runs in 8000 frames, none with this.
+constexpr uint32_t kFrameExactScripts[] = {
+    0xCAD261DF, 0xF4A440B2, 0x01DE43A7, 0x0DA14A2E, 0x9AFA7534, 0x9A8F399F, 0xC09883B8, 0xF1C14221,
+};
+bool IsFrameExact(uint32_t script) {
+  return std::find(std::begin(kFrameExactScripts), std::end(kFrameExactScripts), script) != std::end(kFrameExactScripts);
+}
+// The drummer: script 0x473164C7 counts down the time to each hit by its step, the length of the two frames of a pass
+// (GetFrameLength before and after a "Wait 1 frame"; 33.369 ms to begin with). That wait is a timed one, 1/60 s, a frame
+// on the console. At 160 FPS GetFrameLength is 6.25 ms but each wait lasts 18.75, so a step of 12.5 ms took 37.5: his
+// timers ran at a third of the speed, in slow motion and off the song (Gustavo). Above 60 Hz the script's waits are
+// real frames (GH5DrummerWaitHook), as GH WoR's script wrote them, and the step is what the pass took.
+constexpr uint32_t kDrummerScript = 0x473164C7;
+// Scripts that add GetDeltaTime (the frame's time) to their own timers on each pass, and step nothing else by the pass: held
+// to 60 passes a second their timers ran at 60 / 160 of the speed at 160 FPS. The battle paddles' timer, a blinking text,
+// a wait with a limit, a fade over a time, a list of timed events. Of the seven scripts that read it, two are left out:
+// 0xCFDDF140 (the jam studio's arrows) also adds 0.1 a pass to the time that speeds it up, so every frame it would speed up
+// 2.67 times as soon, and 0xEF54EC55 has no game-frame wait.
+constexpr uint32_t kSelfTimedScripts[] = {0xEC23DF7E, 0xE66D1DA1, 0x4E850682, 0xE20DF41E, 0x3E4FDDAF};
+bool IsSelfTimed(uint32_t script) {
+  return std::find(std::begin(kSelfTimedScripts), std::end(kSelfTimedScripts), script) != std::end(kSelfTimedScripts);
+}
 
 uint32_t WaitingScript(uint32_t wait) {
   auto* kernel = rex::system::kernel_state();
@@ -147,17 +176,17 @@ void GH5FrameWaitSetHook(PPCRegister& r3, PPCRegister& r4) {
   // A script that measures its own time runs every frame, as the game wrote it. The star power's drain (script
   // 0x74B936AB) waits one game frame per pass and takes current_deltatime (the frame's time) off the meter each pass,
   // or GetFrameLength's in a band: held to 60 passes a second it drained 60 frames' time a second, and at 160 FPS star
-  // power lasted 160 / 60 times as long (Gustavo, in GH Metallica and GH Van Halen). GH5 has the same script; of its
-  // 8795 scripts the only other that waits in game frames and reads either (0x473164C7) measures across a timed wait,
-  // its game-frame wait a loop testing a time. The waiting script's name is at +60 of its wait (+244 of the script;
-  // GH Van Halen's +48, +216).
+  // power lasted 160 / 60 times as long (Gustavo, in GH Metallica and GH Van Halen). GH5 has the same script; the only
+  // other of its 8795 that reads either is the drummer's (kDrummerScript). The waiting script's name is at +60 of its
+  // wait (+244 of the script; GH Van Halen's +48, +216).
   // The frets rising on a hit and falling back: the script button_checker (0x716BADDC) calls ButtonCheckerPerFrame
   // (sub_821C0CD8) and waits a game frame; that calls slot 2 of the player's input object (sub_8219D838 or sub_8219BB70)
   // and so sub_821E8500, which takes 20 pixels * the frame's time / 0.1 s off each fret's button_up_pixel_array. Held to
   // 60 passes a second the fall took 266 ms at 160 FPS (Gustavo saw it slow; a temporary probe measured it), 100 ms
   // every frame, as at 60.
   const uint32_t waiting = WaitingScript(r3.u32);
-  if (waiting == kStarPowerDrainScript || waiting == kButtonCheckerScript || waiting == kBandRenderScript) {
+  if (waiting == kStarPowerDrainScript || waiting == kButtonCheckerScript || waiting == kBandRenderScript ||
+      waiting == kDrummerScript || IsFrameExact(waiting) || IsSelfTimed(waiting)) {
     std::lock_guard lock(g_frame_waits_mutex);
     g_frame_waits.erase(r3.u32);
     return;
@@ -171,6 +200,22 @@ void GH5FrameWaitSetHook(PPCRegister& r3, PPCRegister& r4) {
   wait.start = follows ? wait.end : now;
   wait.end = wait.start + std::chrono::duration_cast<std::chrono::steady_clock::duration>(
                               std::chrono::duration<double>(double(int32_t(r4.u32)) / 60.0));
+}
+
+// [[midasm_hook]] 0x824AB938 (the script function Wait, sub_824AB790, the units frame and frames, before N * 16.67 ms
+// becomes a timed wait): r30 = the script. True goes to the game-frame wait at 0x824AB978, with the same N.
+bool GH5DrummerWaitHook(PPCRegister& r30) {
+  if (!HighRate()) {
+    return false;
+  }
+  auto* kernel = rex::system::kernel_state();
+  const uint8_t* base = kernel && kernel->memory() ? kernel->memory()->virtual_membase() : nullptr;
+  if (!base) {
+    return false;
+  }
+  uint32_t name;
+  std::memcpy(&name, base + r30.u32 + 244, 4);
+  return __builtin_bswap32(name) == kDrummerScript;
 }
 
 // [[midasm_hook]] 0x8257E7DC (sub_8257E798, a game-frame wait's count above 0): before "addi r11,r11,-1" and its

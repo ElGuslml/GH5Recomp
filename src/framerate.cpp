@@ -115,8 +115,9 @@ namespace {
 
 double FrameSeconds() { return 1.0 / VblankRate(); }
 
-// The script that drains star power (below), and the name of the script a wait belongs to (+60 of the wait).
+// The scripts that run every frame (below), and the name of the script a wait belongs to (+60 of the wait).
 constexpr uint32_t kStarPowerDrainScript = 0x74B936AB;
+constexpr uint32_t kButtonCheckerScript = 0x716BADDC;
 
 uint32_t WaitingScript(uint32_t wait) {
   auto* kernel = rex::system::kernel_state();
@@ -143,7 +144,13 @@ void GH5FrameWaitSetHook(PPCRegister& r3, PPCRegister& r4) {
   // 8795 scripts the only other that waits in game frames and reads either (0x473164C7) measures across a timed wait,
   // its game-frame wait a loop testing a time. The waiting script's name is at +60 of its wait (+244 of the script;
   // GH Van Halen's +48, +216).
-  if (WaitingScript(r3.u32) == kStarPowerDrainScript) {
+  // The frets rising on a hit and falling back: the script button_checker (0x716BADDC) calls ButtonCheckerPerFrame
+  // (sub_821C0CD8) and waits a game frame; that calls slot 2 of the player's input object (sub_8219D838 or sub_8219BB70)
+  // and so sub_821E8500, which takes 20 pixels * the frame's time / 0.1 s off each fret's button_up_pixel_array. Held to
+  // 60 passes a second the fall took 266 ms at 160 FPS (Gustavo saw it slow; a temporary probe measured it), 100 ms
+  // every frame, as at 60.
+  const uint32_t waiting = WaitingScript(r3.u32);
+  if (waiting == kStarPowerDrainScript || waiting == kButtonCheckerScript) {
     std::lock_guard lock(g_frame_waits_mutex);
     g_frame_waits.erase(r3.u32);
     return;

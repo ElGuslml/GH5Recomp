@@ -86,6 +86,11 @@ Star power's drain (script `0x74B936AB`, the same in GH5) is left to run every f
 is not needed: GH5 measures the frame's time on the time base. **Off:** 60 in the launcher. Not tested above 60 here
 yet.
 
+**The frets falling back (2026-11-05).** On a hit the fret heads rise 20 pixels and fall back in 0.1 s; at 160 FPS the
+fall took 0.27 s. Each pass of the script `button_checker` (`0x716BADDC`, through `sub_821E8500`) lowers them by the
+frame's time, and the fix above held that script to 60 passes a second. It now runs every frame, as star power's drain:
+100 ms at 160 FPS as at 60 (measured in a Quickplay song).
+
 ## The crowd's claps on star power
 
 **Not ported.** In GH Van Halen the claps came late by the audio calibration (`src/crowd.cpp` there). GH5's scripts

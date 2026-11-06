@@ -4,8 +4,8 @@
 
 namespace gh5 {
 
-// Each frame, whether the title screen is shown (src/quit_prompt.cpp's hook): while it is, the controller that presses
-// a button first becomes the profile's.
-void SetTitleScreen(bool shown);
+// Each frame (src/quit_prompt.cpp's hook), whether Party Play is shown and a dialog box is over the screen: the first
+// time Party Play shows, the first controller to press a button becomes the profile's.
+void UpdatePressWindow(bool party_play, bool dialog);
 
 }  // namespace gh5

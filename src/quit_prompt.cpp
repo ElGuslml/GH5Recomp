@@ -14,7 +14,9 @@
 // a hash table (sub_82216F98, the table object at [0x82DA78C4]); the hook reads the same table once per frame on the
 // main thread, which runs the scripts, and offers the prompt while that element exists and no dialog box does
 // (0xCC5FECBC, dialog_box_container: a message box over the menu takes B itself; GH Van Halen's popupelement).
-// quit_prompt = false (an SDK cvar) disables it.
+// quit_prompt = false (an SDK cvar) disables it. The same frame tells src/players.cpp when Party Play shows: 0x22F50BBE,
+// a container its scripts only fade when players join, and ui_deinit_freeplay destroys (found by comparing every
+// element's id at each screen).
 
 #include "players.h"
 
@@ -31,6 +33,7 @@ namespace {
 
 constexpr uint32_t kElementTable = 0x82DA78C4;  // the screen elements' table object (a pointer)
 constexpr uint32_t kMainMenuContainer = 0xA7988D2C;
+constexpr uint32_t kPartyPlay = 0x22F50BBE;
 constexpr uint32_t kDialogBox = 0xCC5FECBC;  // QBKey("dialog_box_container")
 
 const uint8_t* GuestBase() {
@@ -86,16 +89,15 @@ void GH5QuitPromptHook() {
     return;
   }
   const bool main_menu = FindElement(base, kMainMenuContainer) != 0;
+  const bool party_play = FindElement(base, kPartyPlay) != 0;
   const bool dialog = FindElement(base, kDialogBox) != 0;
   static int last_state = -1;
-  const int state = (main_menu ? 1 : 0) | (dialog ? 2 : 0);
+  const int state = (main_menu ? 1 : 0) | (dialog ? 2 : 0) | (party_play ? 4 : 0);
   if (state != last_state) {
-    REXLOG_DEBUG("[quit_prompt] main menu {} dialog {}", main_menu, dialog);
+    REXLOG_DEBUG("[quit_prompt] main menu {} dialog {} party play {}", main_menu, dialog, party_play);
     last_state = state;
   }
-  // GH Van Halen's title screen gave the profile to the controller pressing there (src/players.cpp); GH5's Party Play
-  // is not told apart yet, so the first controller connected keeps the profile.
-  gh5::SetTitleScreen(false);
+  gh5::UpdatePressWindow(party_play, dialog);
   if (main_menu && !dialog) {
     rex::ui::OfferQuitPrompt();
   }

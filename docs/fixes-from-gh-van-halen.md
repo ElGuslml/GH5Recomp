@@ -69,10 +69,14 @@ each controller's own layout and the whammy bar's calibration (SDK changes 59 an
 
 ## A second controller
 
-`signin_ui_cancel = true` and `signin_guests = true`, as GH Van Halen's. GH Van Halen's profile following the
-controller that presses at the title screen (`src/players.cpp`) is **not active yet**: GH5 has no title screen; it
-starts in Party Play (songs playing while the players join), which is not told apart yet. The first controller
-connected plays with the profile.
+`signin_ui_cancel = true` and `signin_guests = true`, as GH Van Halen's. A guitar that pressed Start with a controller
+connected before it was the profile's guest: GH Van Halen's profile following the press at the title screen was off
+here, because GH5 has no title screen. It starts in Party Play (songs playing while the players join), which is told
+apart now by a screen element (0x22F50BBE, `src/quit_prompt.cpp`). The first controller to press a button there takes
+the profile and the others are its guests. Party Play stays after that press, so it counts once, for good: a second
+player joining the song, or Party Play entered again from the main menu, moves nothing (`src/players.cpp`). Tried with a
+DualSense and a guitar connected.
+**Off:** `gh5_profile_follows_press = false`.
 
 ## GH Metallica's of 2026-11-03/05
 

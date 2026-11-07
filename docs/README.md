@@ -13,6 +13,7 @@ and GHVanHRecomp's.
 | [NativeXRenderer in Guitar Hero 5](native-x-renderer-gh5.md) | Working, the default renderer: GH Van Halen's map and profile, translated; SMAA and FXAA on the scene's copy |
 | [Characters that never loaded after switching](characters-not-loading.md) | Fixed in the SDK: its `NtCancelIoFile` succeeds |
 | [Clothes shooting out for a frame](clothes-stretching.md) | Fixed: the skinning waits for the animation that writes its bones |
+| [Stalls on a first play](first-play-stalls.md) | Fixed in NativeXRenderer: a pass drawn every frame no longer waits for its pipeline |
 | [Downloadable content](dlc.md) | Working: Guitar Hero 5's own packages add their songs; other games' install and add none |
 
 Building the project, its configuration and how the SDK is changed: [`development.md`](development.md).

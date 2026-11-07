@@ -73,6 +73,7 @@ set(GH5_SOURCES
     src/players.cpp
     src/quit_prompt.cpp
     src/screen_fx.cpp
+    src/skinning.cpp
     src/startup.cpp
     src/thread_waits.cpp
     src/timer.cpp

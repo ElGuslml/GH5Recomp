@@ -124,6 +124,16 @@ scripts poll (`sub_824B58C8`, ControllerMake `sub_824C06B0`), the whammy on a su
 Star power's drain (script `0x74B936AB`, the same in GH5) is left to run every frame. GH Van Halen's frame time hook
 is not needed: GH5 measures the frame's time on the time base. **Off:** 60 in the launcher. Played at 160 FPS with a guitar (2026-11-06).
 
+**When the frame rate falls below the chosen one (2026-11-07).** Some of what the fix counts in frames took a frame as
+one vertical blank at the chosen rate: the whammy's 5 frames, the strings' fade (0.99 a frame), the loading screen's
+steps, and the margins that pick the frame a script wait ends in and the presses given to scripts. When the game could
+not keep that rate (a frame that takes 5 ms at 240 Hz is shown for 8.3), those ran slower until it came back. They use
+the frames' real length now, measured once a frame on the main thread (`GH5MainFrameHook` at `0x82413BCC`, `sub_82413AA0`):
+the last frame's for the strings' fade, the average of about the last ten for the rest; the loading screen's animations,
+drawn by the render thread while the main thread loads, measure their own. The whammy's count of frames in a row is
+compared with 5 for equality, so each run keeps the number of frames it began with. The notes on the highway are not
+among them: they follow the game's own clock. **Off:** 60 in the launcher.
+
 **The frets falling back (2026-11-05).** On a hit the fret heads rise 20 pixels and fall back in 0.1 s; at 160 FPS the
 fall took 0.27 s. Each pass of the script `button_checker` (`0x716BADDC`, through `sub_821E8500`) lowers them by the
 frame's time, and the fix above held that script to 60 passes a second. It now runs every frame, as star power's drain:

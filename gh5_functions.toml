@@ -195,8 +195,14 @@ registers = ["r4"]
 [[midasm_hook]]
 address = 0x824C0770   # addi r1,r1,112 (sub_824C06B0's exit, every path)
 name = "GH5ButtonPollEndHook"
+# The frames' real length (src/framerate.cpp: what is counted in frames above 60 Hz keeps the console's time by it when
+# the frame rate falls below the chosen one), measured once a frame on the main thread.
+[[midasm_hook]]
+address = 0x82413BCC   # addi r1,r1,128 (sub_82413AA0: the main thread's frame, at its end)
+name = "GH5MainFrameHook"
 # The whammy on a sustain is told by the frame (the bar's movement since the previous frame, a countdown of 5 frames,
-# 5 frames in a row to turn a star power sustain blue or back): above 60 Hz over a 60th of a second and 5 / 60 s.
+# 5 frames in a row to turn a star power sustain blue or back): above 60 Hz over a 60th of a second and 5 / 60 s, in
+# frames of their measured length.
 [[midasm_hook]]
 address = 0x821D4EF0   # mflr r12 (sub_821D4EF0: a player's update in a song, every frame; src/keyboard.cpp)
 name = "GH5SongFrameHook"
@@ -229,14 +235,15 @@ address = 0x821E1BF0   # stwx r9,r31,r8 (sub_821E1A38: the whammy countdown, 5 f
 name = "GH5WhammyCountdownHook"
 registers = ["r9"]
 [[midasm_hook]]
-address = 0x821E9878   # cmpwi cr6,r11,5 (sub_821E96C8: frames in a row of whammying)
+address = 0x821E9878   # cmpwi cr6,r11,5 (sub_821E96C8: frames in a row of whammying, r30 = the count's address)
 name = "GH5WhammyStateHook"
-registers = ["r11"]
+registers = ["r30", "r11"]
 [[midasm_hook]]
-address = 0x821E9958   # cmpwi cr6,r11,5 (sub_821E96C8: frames in a row of not whammying)
+address = 0x821E9958   # cmpwi cr6,r11,5 (sub_821E96C8: frames in a row of not whammying, r10 = the count's address)
 name = "GH5WhammyStateHook"
-registers = ["r11"]
-# The loading screen's animations step by the frame: above 60 Hz the steps are scaled by 60 / the rate.
+registers = ["r10", "r11"]
+# The loading screen's animations step by the frame: above 60 Hz each step is scaled by the frame's length in 60ths of a
+# second, each animation measuring its own frames (the render thread draws it while the main thread loads).
 [[midasm_hook]]
 address = 0x825E1434   # after lfd f31,-24376(r10) (sub_825E1320: the boot's spinning star, f31 = its turn each frame, 0.175 radians)
 name = "GH5LoadingStarHook"
@@ -251,7 +258,7 @@ name = "GH5LoadingWaveHook"
 registers = ["f29"]
 [[midasm_hook]]
 address = 0x825E18D0   # fadds f0,f13,f0 (sub_825E1698's mode 2: the other phase plus its step, f0)
-name = "GH5LoadingWaveHook"
+name = "GH5LoadingWave2Hook"
 registers = ["f0"]
 
 # The screen effects each turned off by an option (src/screen_fx.cpp, gh5_fx_*): the effects' composite

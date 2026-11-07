@@ -107,3 +107,16 @@ D108 and D109 were tried in the other NativeXRenderer games (GH Metallica, GH Va
 POTCAWE): the same images, their frames' cost unchanged or lower, and shorter stutters while loading (GRAW 381 →
 215 ms). Mapping ahead keeps 120–300 MB more of the system's memory (`native_x_renderer_map_guest_memory=false` turns
 it off).
+
+## The bloom's lattice (NativeXRenderer D127, 2026-11-07)
+
+**Symptom:** in GH Metallica (a player's issue there, its `docs/bloom-lattice.md`), above 720 lines the glow around bright
+lights doubled into offset copies or a grid of dots, and blurred backgrounds showed the same pattern. **Cause:** the
+post-processing blurs reduced copies of the scene with tap offsets computed for their guest size; drawn at the render
+scale, the taps skip texels. GH5 has the same kind of chain: the 640x360 4x MSAA resolves of the 1280x720 scene and of its
+depth, 320x180 passes (color at EDRAM 1488, 1536, 1584 and 1709, depth at 1440) and a 160x90 one. **Fix:** the profile
+sets `unscaled_screen_fractions` (`src/native_x_renderer_gh5.cpp`): those targets and their resolves stay at 1x, as on the
+console, the 640x360 color copy averaging every pixel of the scene under it (the depth one takes one sample, D112). The
+32x32-4x4 chain, 64x64, 128x128, 400x400 and the other sizes that are not fractions of 1280x720 stay at the render scale.
+Checked: a run at 3440x1440 to the first screen (`gh5_300`): those targets and their resolves at 1x on the host, no warning.
+**Off:** `native_x_renderer_unscaled_screen_fractions = false` in `gh5.toml`.

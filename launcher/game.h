@@ -97,7 +97,7 @@ inline constexpr bool kHasDlaa = false;
 // finds them: the depth passes with no color target that are not of the game's output size.
 // Turned on once the log shows NativeXRenderer finding the game's shadow maps ("shadow map: ...") with
 // native_x_renderer_shadow_scale = 4, and their image is right.
-inline constexpr bool kShadowQuality = kHasNativeXRenderer && false;
+inline constexpr bool kShadowQuality = kHasNativeXRenderer && true;
 
 // The Graphics page's frame rate row: kFrameRateCvar's choices (game_types.h's FrameRate) and the value without the
 // key. Here src/framerate.cpp's gh5_frame_rate, the frame rate itself: 60 as on the console, above it the emulated

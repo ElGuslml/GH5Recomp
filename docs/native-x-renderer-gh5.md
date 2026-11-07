@@ -29,6 +29,18 @@ Xenos card or `--native_x_renderer=false` turns it off.
   bars, the main menu, Quickplay, a song with the stage widened and the highway and HUD at 16:9; 584-761 draws a frame,
   none failed, 0 placeholder textures, GPU 1.3-1.9 ms a frame.
 
+## Shadow quality: the filter follows the map
+
+**Symptom** (Gustavo): on Ultra the shadows on the characters were better, still pixelated: a lattice of diamonds on skin.
+
+**Cause:** GH5 reads its shadows in nine samples, each compared with the pixel's depth. `sub_825CCE98` sets their offsets to
+one texel of the 400x400 map, 1/400. A map drawn four times as large (D92) kept them: the samples fell four texels apart.
+
+**Fix:** `GH5ShadowFilterHook` (`0x825CD048`) divides the offsets by `native_x_renderer_shadow_scale`, so the samples are
+neighbours on the larger map. Sharper edges, with a narrower soft edge. Nothing changes on the Xenos path or at Original.
+
+**Off:** `gh5_shadow_filter_fix = false` in `gh5.toml`.
+
 ## The title screen blurred, the band see-through (2026-10-31)
 
 **Symptom** (Gustavo): with NativeXRenderer the title screen was blurred all over and the band looked transparent,

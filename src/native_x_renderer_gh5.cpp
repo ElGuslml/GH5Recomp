@@ -13,6 +13,8 @@
 #include "native_x_renderer_gh5.h"
 
 #include <native_x_renderer/hooks.h>
+#include <rex/cvar.h>
+#include <rex/ppc/context.h>
 
 // Draws. DrawVerticesUP and DrawIndexedVerticesUP (sub_8230C8C0, 4 engine sites, no call of its own) commit their
 // packets with an inlined EndVertices ([dev+48] = [dev+13444]); the engine's three BeginVertices / EndVertices pairs
@@ -70,6 +72,25 @@ NATIVE_X_RENDERER_HOOK(8231AF80, QueryIssue)
 NATIVE_X_RENDERER_HOOK(8231B208, QueryGetData)
 NATIVE_X_RENDERER_HOOK(823201E8, Swap)
 NATIVE_X_RENDERER_HOOK(82320618, Present)
+
+// The shadows' filter follows the map (a shadow quality above Original, D92). The characters' shadows are read by a
+// pixel shader in nine samples, each compared with the pixel's depth (sub_825CCE98 writes their offsets to c10-c13, one
+// texel of the 400x400 map apart: 1/400, from f0 and f12). A map drawn four times as large kept those offsets: its samples
+// fell four texels apart, three stepped copies of each edge instead of a soft one (Gustavo: better, still pixelated).
+// The offsets are divided by the shadow scale, so the nine samples are neighbours on the larger map again.
+REXCVAR_DEFINE_BOOL(gh5_shadow_filter_fix, true, "GH5",
+                    "With a shadow quality above Original, the filter of the shadows follows the map's size: sharper "
+                    "edges (false = its width as on the console)");
+
+// [[midasm_hook]] 0x825CD048 (sub_825CCE98): after "lfs f12,172(r1)", f0 and f12 = the shadow map's texel size.
+void GH5ShadowFilterHook(PPCRegister& f0, PPCRegister& f12) {
+  static const double scale =
+      rex::cvar::Query<bool>("native_x_renderer") ? rex::cvar::Query<double>("native_x_renderer_shadow_scale") : 0.0;
+  if (scale > 1.0 && REXCVAR_GET(gh5_shadow_filter_fix)) {
+    f0.f64 = double(float(f0.f64 / scale));
+    f12.f64 = double(float(f12.f64 / scale));
+  }
+}
 
 namespace gh5 {
 

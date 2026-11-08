@@ -108,16 +108,19 @@ POTCAWE): the same images, their frames' cost unchanged or lower, and shorter st
 215 ms). Mapping ahead keeps 120–300 MB more of the system's memory (`native_x_renderer_map_guest_memory=false` turns
 it off).
 
-## The bloom's lattice (NativeXRenderer D127, 2026-11-07): not needed here
+## The blurs' lattice (NativeXRenderer D127)
 
 **In GH Metallica** (a player's issue there, its `docs/bloom-lattice.md`), above 720 lines the glow around bright lights
 doubled into offset copies: its blur steps by constants computed for 320x180 texels, so at the render scale it skips
-host texels, and a glow pass draws sharp geometry straight into its 320x180 target. NativeXRenderer's
-`unscaled_screen_fractions` keeps those reduced copies of the screen at 1x there.
+host texels. NativeXRenderer's `unscaled_screen_fractions` keeps those reduced copies of the screen (640x360, 320x180,
+160x90) at the game's resolution, as on the console.
 
-**GH5 does not need it** (the issue's author said so for GH5, Band Hero and Warriors of Rock; checked here). Its blur
-(ucode `88936B01D1D427A9`, a 7-tap separable Gaussian) also steps by constants for 320x180 texels, but its input is the
-scene downsampled by multi-tap shaders, which already smooth it at the host's scale: nothing fine enough is left for the
-skipped texels to show. At 3440x1440 without the flag the 320x180 blurred copy and the final image have no grid or
-offset copies (`gh5_307`, `309`). Set for a few hours (`403d3cb`), the flag only lowered the post-processing to the
-console's resolution, the depth of field's 320x180 depth included, so it is off again.
+**Set here (2026-11-08).** On 2026-11-07 only the title screen's bloom was checked: its blur (ucode
+`88936B01D1D427A9`) steps by constants for 320x180 texels too, but it blurs the scene downsampled by multi-tap shaders and
+showed no grid at 3440x1440 (`gh5_307`, `309`), so the flag was turned off (`8adeb92`). Then GH Warriors of Rock, this
+engine, showed the grid in the background its depth of field blurs (the rocker creator's character screen, 3440x1440):
+its 320x180 blurred copy of the scene was striped, smooth with the flag (GH WoR's `docs/native-x-renderer-ghwor.md`). The
+flag is on here as there. The bloom, the depth of field (its 320x180 depth included) and the other screen effects' passes
+are at the console's resolution; the scene, the characters and the HUD stay at the output's.
+
+**Off:** `native_x_renderer_unscaled_screen_fractions = false` in `gh5.toml`.

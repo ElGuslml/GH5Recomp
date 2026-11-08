@@ -114,11 +114,11 @@ const native_x_renderer::Profile& NativeXRendererProfile() {
     // The ultrawide hooks (src/widescreen.cpp) widen the 16:9 cameras by AspectFactor() and keep the 2D layer at
     // 16:9 in the center: NativeXRenderer may fill a wider output (native_x_renderer_fill_screen).
     p.widens_cameras = true;
-    // Not unscaled_screen_fractions (D127, GH Metallica's bloom lattice): GH5's 7-tap blur (ucode 88936B01D1D427A9) also
-    // steps by constants for 320x180 texels, so at the render scale it skips host texels, but its input is the scene
-    // downsampled by multi-tap shaders that already smooth it at the host's scale, and no glow pass draws sharp
-    // geometry into it as GH Metallica's does: no lattice at 3440x1440 (gh5_307, 309). At 1x the post-processing would
-    // only be coarser (the depth of field's 320x180 depth included).
+    // The screen effects' reduced copies of the screen (640x360, 320x180, 160x90) at the game's resolution (D127). Their
+    // blurs step by constants for 320x180 texels (the 7-tap 88936B01D1D427A9 among them), so at the render scale the taps
+    // skip host texels. The title screen's bloom showed no grid (gh5_307, 309), but GH Warriors of Rock, this engine,
+    // showed one in the background its depth of field blurs at 3440x1440 (the rocker creator's character screen).
+    p.unscaled_screen_fractions = true;
     native_x_renderer::DeviceLayout& d = p.device;
     // Six dirty masks from +0: VS constants, PS constants, register groups and the program, fetch slots (low half,
     // slot 0 in bit 31) and the 0x2280 group, the 0x2300/0x2380 groups with the clip planes and bool/loop constants,

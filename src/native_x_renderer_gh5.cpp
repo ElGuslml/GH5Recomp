@@ -114,12 +114,11 @@ const native_x_renderer::Profile& NativeXRendererProfile() {
     // The ultrawide hooks (src/widescreen.cpp) widen the 16:9 cameras by AspectFactor() and keep the 2D layer at
     // 16:9 in the center: NativeXRenderer may fill a wider output (native_x_renderer_fill_screen).
     p.widens_cameras = true;
-    // The post-processing works on reduced copies of the scene, as GH Metallica's (D127): the 640x360 4x MSAA resolves
-    // of the 1280x720 scene and its depth, the 320x180 passes (color at EDRAM 1488, 1536, 1584, 1709, depth at 1440) and
-    // a 160x90 one. At the render scale the blurs' offsets, constants for those sizes, skipped host texels (a lattice in
-    // GH Metallica's bloom): they stay at 1x, as on the console. The 32x32-4x4 chain, 64x64, 128x128 and the other
-    // sizes that are not fractions of 1280x720 stay at the render scale.
-    p.unscaled_screen_fractions = true;
+    // Not unscaled_screen_fractions (D127, GH Metallica's bloom lattice): GH5's 7-tap blur (ucode 88936B01D1D427A9) also
+    // steps by constants for 320x180 texels, so at the render scale it skips host texels, but its input is the scene
+    // downsampled by multi-tap shaders that already smooth it at the host's scale, and no glow pass draws sharp
+    // geometry into it as GH Metallica's does: no lattice at 3440x1440 (gh5_307, 309). At 1x the post-processing would
+    // only be coarser (the depth of field's 320x180 depth included).
     native_x_renderer::DeviceLayout& d = p.device;
     // Six dirty masks from +0: VS constants, PS constants, register groups and the program, fetch slots (low half,
     // slot 0 in bit 31) and the 0x2280 group, the 0x2300/0x2380 groups with the clip planes and bool/loop constants,

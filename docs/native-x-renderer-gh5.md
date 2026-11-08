@@ -108,15 +108,16 @@ POTCAWE): the same images, their frames' cost unchanged or lower, and shorter st
 215 ms). Mapping ahead keeps 120–300 MB more of the system's memory (`native_x_renderer_map_guest_memory=false` turns
 it off).
 
-## The bloom's lattice (NativeXRenderer D127, 2026-11-07)
+## The bloom's lattice (NativeXRenderer D127, 2026-11-07): not needed here
 
-**Symptom:** in GH Metallica (a player's issue there, its `docs/bloom-lattice.md`), above 720 lines the glow around bright
-lights doubled into offset copies or a grid of dots, and blurred backgrounds showed the same pattern. **Cause:** the
-post-processing blurs reduced copies of the scene with tap offsets computed for their guest size; drawn at the render
-scale, the taps skip texels. GH5 has the same kind of chain: the 640x360 4x MSAA resolves of the 1280x720 scene and of its
-depth, 320x180 passes (color at EDRAM 1488, 1536, 1584 and 1709, depth at 1440) and a 160x90 one. **Fix:** the profile
-sets `unscaled_screen_fractions` (`src/native_x_renderer_gh5.cpp`): those targets and their resolves stay at 1x, as on the
-console, the 640x360 color copy averaging every pixel of the scene under it (the depth one takes one sample, D112). The
-32x32-4x4 chain, 64x64, 128x128, 400x400 and the other sizes that are not fractions of 1280x720 stay at the render scale.
-Checked: a run at 3440x1440 to the first screen (`gh5_300`): those targets and their resolves at 1x on the host, no warning.
-**Off:** `native_x_renderer_unscaled_screen_fractions = false` in `gh5.toml`.
+**In GH Metallica** (a player's issue there, its `docs/bloom-lattice.md`), above 720 lines the glow around bright lights
+doubled into offset copies: its blur steps by constants computed for 320x180 texels, so at the render scale it skips
+host texels, and a glow pass draws sharp geometry straight into its 320x180 target. NativeXRenderer's
+`unscaled_screen_fractions` keeps those reduced copies of the screen at 1x there.
+
+**GH5 does not need it** (the issue's author said so for GH5, Band Hero and Warriors of Rock; checked here). Its blur
+(ucode `88936B01D1D427A9`, a 7-tap separable Gaussian) also steps by constants for 320x180 texels, but its input is the
+scene downsampled by multi-tap shaders, which already smooth it at the host's scale: nothing fine enough is left for the
+skipped texels to show. At 3440x1440 without the flag the 320x180 blurred copy and the final image have no grid or
+offset copies (`gh5_307`, `309`). Set for a few hours (`403d3cb`), the flag only lowered the post-processing to the
+console's resolution, the depth of field's 320x180 depth included, so it is off again.

@@ -119,6 +119,11 @@ const native_x_renderer::Profile& NativeXRendererProfile() {
     // skip host texels. The title screen's bloom showed no grid (gh5_307, 309), but GH Warriors of Rock, this engine,
     // showed one in the background its depth of field blurs at 3440x1440 (the rocker creator's character screen).
     p.unscaled_screen_fractions = true;
+    // The pipeline list (D129): every shader the game has is in data/fxfiles/MaterialLibrary.bin.xen, as in GH Metallica (NativeXRenderer's D129, D133).
+    static const char* const kShaderFiles[] = {"data/fxfiles/MaterialLibrary.bin.xen"};
+    p.title_id = 0x41560840;
+    p.shader_files = kShaderFiles;
+    p.shader_file_count = 1;
     native_x_renderer::DeviceLayout& d = p.device;
     // Six dirty masks from +0: VS constants, PS constants, register groups and the program, fetch slots (low half,
     // slot 0 in bit 31) and the 0x2280 group, the 0x2300/0x2380 groups with the clip planes and bool/loop constants,

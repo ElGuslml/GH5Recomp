@@ -58,6 +58,12 @@ reserved_as_local = true
 [[midasm_hook]]
 address = 0x825E5C3C   # li r4,0 (sub_825E5BE0: a job worker with an empty queue, before WaitForSingleObject(event, 0))
 name = "GH5JobWaitHook"
+# A job queued pulses the manual-reset job event (sub_82567998), which woke every waiting worker for one job: with
+# gh5_job_wake_one the hook wakes one waiting worker itself and the pulse is skipped.
+[[midasm_hook]]
+address = 0x82567998   # lis r11,-32023 (sub_82567998: lwz r3,-13652(r11), the job event at 0x82E8CAAC; b sub_82819CE0, PulseEvent)
+name = "GH5JobPulseHook"
+return_on_true = true
 [[midasm_hook]]
 address = 0x82413B6C   # cmplwi cr6,r3,0 (sub_82413AA0: while (sub_82664370(0x82E8D180) != 0) {})
 name = "GH5FrameWaitHook"

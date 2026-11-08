@@ -15,5 +15,6 @@ and GHVanHRecomp's.
 | [Clothes shooting out for a frame](clothes-stretching.md) | Fixed: the skinning waits for the animation that writes its bones |
 | [Stalls on a first play](first-play-stalls.md) | Fixed in NativeXRenderer: a pass drawn every frame no longer waits for its pipeline |
 | [Downloadable content](dlc.md) | Working: Guitar Hero 5's own packages add their songs; other games' install and add none |
+| [Stutters the first time something is shown](compiling-shaders.md) | Fixed: a pipeline list ships with the game; the launcher compiles it for your graphics card at the first Play ("Compiling shaders"; NativeXRenderer) |
 
 Building the project, its configuration and how the SDK is changed: [`development.md`](development.md).

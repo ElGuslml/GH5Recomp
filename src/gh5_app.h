@@ -61,8 +61,20 @@ class Gh5App : public rex::ReXApp {
     if (!rex::ReXApp::SetupEnvironment()) return false;
     REXLOG_INFO("[startup] User data: {}", user_data_root().string());
     REXLOG_INFO("[startup] {}", native_x_renderer::Describe());
-    if (!rex::cvar::Query<bool>("achievements_cache_only") && !gh5::CheckGameFiles(game_data_root())) return false;
+    if (!rex::cvar::Query<bool>("achievements_cache_only") && !native_x_renderer::ToolModeRequested() &&
+        !gh5::CheckGameFiles(game_data_root())) {
+      return false;
+    }
     gh5::LoadLauncherOptions(exe_dir / GAME_OPTIONS, gh5::GpuPluginPath());
+    return true;
+  }
+
+  // NativeXRenderer's tool modes (D129), instead of the game: the launcher's "Compiling shaders"
+  // (--native_x_renderer_prepare_pipelines) and the developers' pipeline list (--native_x_renderer_make_pipeline_list),
+  // with the launcher's options already applied, so the pipelines are the ones the game will ask for.
+  bool OnToolMode() override {
+    if (!native_x_renderer::ToolModeRequested()) return false;
+    native_x_renderer::RunToolMode(gh5::NativeXRendererProfile(), game_data_root(), cache_root());
     return true;
   }
 

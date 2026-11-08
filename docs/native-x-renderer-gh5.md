@@ -124,3 +124,12 @@ flag is on here as there. The bloom, the depth of field (its 320x180 depth inclu
 are at the console's resolution; the scene, the characters and the HUD stay at the output's.
 
 **Off:** `native_x_renderer_unscaled_screen_fractions = false` in `gh5.toml`.
+
+## The render scale in the shaders' constants (NativeXRenderer D128, 2026-11-08)
+
+With the SDK's recomp change 73, the translated shaders read the render scale from the draw's system constants instead
+of having it written into them. Before, a window size, internal resolution or FSR 1 / NIS setting not used before gave
+the driver new shaders to compile, and its pipeline cache kept a copy of each pipeline per scale; now one translation
+serves every scale. The first start after the change compiles every pipeline once. A draw computes what it computed
+(GH Metallica's and the other games' stored translations checked, NativeXRenderer's decisions.md D128).
+**Off:** `--native_x_renderer_scale_in_constants=false` writes the scale into the shaders as before.

@@ -33,9 +33,25 @@ emulator to set up, sharp graphics, wide screens, high frame rates, and your Xbo
 > [tell us](#-reporting-a-problem)!
 
 > [!WARNING]
-> ⚠️ **Not tested yet:** AMD graphics cards, and Wii or PS3 instruments (guitars and drum kits). If you play with any
-> of them and something goes wrong, please report it in [issues](https://github.com/ElGuslml/GH5Recomp/issues) or on
+> ⚠️ **Not tested yet:** AMD graphics cards (only in a simulation so far) and drum kits. If you play with either and
+> something goes wrong, please report it in [issues](https://github.com/ElGuslml/GH5Recomp/issues) or on
 > [Discord](https://discord.gg/XQtM5TmNs8).
+
+## 🆕 What's new in 0.2.0
+
+- 🚀 **No more stutters or freezes the first time something shows up:** the first time you press PLAY (and after an
+  update of the game or of your graphics driver), the launcher shows **"Compiling shaders"** for a moment and
+  prepares the game's graphics for your graphics card; and the game no longer stops for up to most of a second in
+  the middle of a song the first time an effect shows up.
+- ⚡ **Above 60 FPS, everything keeps the console's timing** even when your PC falls below the frame rate you chose:
+  the whammy bar, the strings, the loading screen and the game's timed scripts follow the real length of each frame.
+- 🔥 **Lighter on your processor:** songs use less CPU, with the game's threads no longer waking each other up tens
+  of thousands of times a second.
+- ✨ **A smooth depth of field at high resolutions:** its blur showed a grid pattern above 1080p.
+- 🔴 **Ready for AMD graphics cards:** a problem that would have hit them at 2560 wide and above is fixed (found by
+  simulating an AMD card; not tested on a real one yet).
+
+The full list is in the [release notes](https://github.com/ElGuslml/GH5Recomp/releases/tag/v0.2.0).
 
 ## 🎮 How to play
 
@@ -79,6 +95,8 @@ From then on, the launcher keeps itself up to date: when a new version comes out
   choose which controller sings.
 - 🖥️ **Sharp, native graphics:** the game is drawn by your graphics card at your screen's resolution, with smooth
   edges (antialiasing) and sharper textures.
+- 🚀 **No first-time stutters:** "Compiling shaders" prepares every graphics combination the game uses for your
+  graphics card before you play, in a moment, only the first time and after an update.
 - 🔍 **Upscaling:** AMD FSR 1 or NVIDIA NIS, on any graphics card, with their quality and sharpness: for a 4K screen
   or a slower graphics card ([how they compare](https://github.com/ElGuslml/GHMetalRecomp/blob/main/docs/scaling.md)).
 - 🌑 **Sharper shadows:** the **Shadow quality** row draws the shadows at up to four times the original resolution.
@@ -181,7 +199,8 @@ graphics instead), and tell us whether it happens there too.
 - ⚡ Above 60 FPS is experimental: something may still run too fast.
 - 🎶 Only Guitar Hero 5's own downloadable content adds songs: packages of other Guitar Hero games install but do not
   show up ([details](docs/dlc.md)).
-- ✨ The first time an effect appears, it may show up a moment late.
+- ✨ With the Xenos renderer, or if you skip "Compiling shaders", the first time an effect appears it may show up a
+  moment late.
 
 ## ❤️ Support
 

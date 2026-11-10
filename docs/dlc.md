@@ -38,6 +38,25 @@ after the start, so a stale release rarely meets another object: two runs with t
 showed no error. The fix keeps it from happening at all. Details: GHMetalRecomp's
 `local_docs/39-dlc-disc-read-error.md`.
 
+## A package of another game: "A content package appears damaged or unreadable" (launcher 3.15.0)
+
+A player installed packages of other games; the game then showed "A content package appears damaged or unreadable. You
+will not be able to use or access any downloadable content." and no DLC worked, its own packs included. The game's DLC
+script (`5A4B6A0C`) resolves every content folder by a manifest: it knows a package by the QBKey of its display name
+(lower case, any other character than a letter or digit an underscore; `sub_823C0608`) and looks for
+`bmanifest_<key>.pak.xen` in it. GH5's packs carry theirs (Megadeth's: `bmanifest_285458e5.pak.xen`, the key of
+"megadeth_track_pack"), and each lists the packs before it; the disc's own list names only Death Magnetic. A folder it
+cannot resolve makes it ask for that file (`[NtCreateFile] FAILED: path='CONT0:\bmanifest_e35cd47b.pak.xen'` for Guitar
+Hero II's Track Pack 2), set the damaged flag, remove every content file and show the dialog. On a console a package of
+another game never lands in GH5's content folder.
+
+GH5 Launcher 3.15.0 checks each installed package the same way (`kDlcRule` in `launcher/game.h`) and turns off the ones
+the game cannot resolve: their folders move to `userdata\0000000000000000\41560840\Disabled DLC`, where the game does
+not look. Each package has a switch; one turned on by the player stays on. Checked: with Guitar Hero II's pack off the
+game lists only Megadeth's and asks for no missing manifest; on, it asks for `bmanifest_e35cd47b.pak.xen` again.
+Details: `local_docs/20-dlc-damaged-warning.md`.
+
 ## Turning it off
 
-Remove the package from the DLC page, or delete its folder. `kHasDlcPage` in `launcher/game.h` hides the page.
+Turn the package off on the DLC page (or remove it), or move its folder out of `00000002`. `kHasDlcPage` in
+`launcher/game.h` hides the page.

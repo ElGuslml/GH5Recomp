@@ -149,6 +149,17 @@ inline constexpr std::array<Toggle, 5> kToggles{{
 // mode (SDK change 44) into its user data's content folder.
 inline constexpr bool kHasDlcPage = true;
 
+// Which installed packages the game reads (local_docs/20, docs/dlc.md). Its script 5A4B6A0C resolves every content
+// folder by a manifest: a package is known by the QBKey of its display name (sub_823C0608, 128 characters) and must
+// carry "bmanifest_<key>.pak.xen" (GH5's own packs do) or be named in another pack's manifest (each lists the packs
+// before it) or in the disc's own list (one entry: Death Magnetic). With one it cannot resolve, it reports a damaged
+// package and turns off every DLC.
+inline constexpr uint32_t kDlcDiscNames[] = {0x903733C1, 0x477946E0};
+inline constexpr DlcRule kDlcRule{.manifest_prefix = "bmanifest_",
+                                  .name_length = 128,
+                                  .known_names = kDlcDiscNames,
+                                  .foreign = DlcForeign::kDisablesAll};
+
 // NativeXRenderer's pipeline list (its D129, pipelines.h): Play first runs the game's --native_x_renderer_prepare_pipelines
 // ("Compiling shaders") when the executable, the list (<TITLEID>.pipelines.list beside it) or the graphics driver
 // changed since the last time. On when the game's NativeXRenderer profile names its shader files.

@@ -16,5 +16,6 @@ and GHVanHRecomp's.
 | [Stalls on a first play](first-play-stalls.md) | Fixed in NativeXRenderer: a pass drawn every frame no longer waits for its pipeline |
 | [Downloadable content](dlc.md) | Working: Guitar Hero 5's own packages add their songs; other games' install and add none |
 | [Stutters the first time something is shown](compiling-shaders.md) | Fixed: a pipeline list ships with the game; the launcher compiles it for your graphics card at the first Play ("Compiling shaders"; NativeXRenderer) |
+| [Crackling in songs on slower PCs](audio-crackling.md) | Fixed in the SDK (change 82): the audio callback's spacing counted from its start, so a slower CPU keeps up |
 
 Building the project, its configuration and how the SDK is changed: [`development.md`](development.md).

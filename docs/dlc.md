@@ -23,6 +23,21 @@ So a package for another Guitar Hero does nothing here.
 The Megadeth Track Pack is GH5's own format (`bmanifest_*.pak.xen`, `bdlc1238_song.pak.xen`, three songs): with it the game's
 request for a manifest no longer fails, and its songs are in the game.
 
+## Many packages: "Disc Read Error" at start (fixed in 0.2.1-beta.1, SDK change 78)
+
+In GH Warriors of Rock, a player's collection of 190 packages showed the "Disc Read Error" dialog a few seconds after
+starting. The game lists its content one package at a time with the XDK's asynchronous `XEnumerate`, which ends each
+call with `ObDereferenceObject` on the enumerator. The SDK looked that object up through a handle it keeps in a dispatch
+header, which an enumerator does not have: after the first call it released whatever object had taken a freed handle,
+sometimes a file the game had just opened, and the game's next read of it failed. Now the object is found by its guest
+address.
+
+GH5 has the same XDK code (`sub_8281C520`: `XMsgInProcessCall`, the 308-byte `XCONTENT_DATA` copied out,
+`ObDereferenceObject`, `XMsgCompleteIORequest`). Here the 190 calls ran on one thread within a millisecond, about 26 s
+after the start, so a stale release rarely meets another object: two runs with the same 190 packages before the fix
+showed no error. The fix keeps it from happening at all. Details: GHMetalRecomp's
+`local_docs/39-dlc-disc-read-error.md`.
+
 ## Turning it off
 
 Remove the package from the DLC page, or delete its folder. `kHasDlcPage` in `launcher/game.h` hides the page.

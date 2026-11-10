@@ -1,12 +1,27 @@
 # Downloadable content (DLC)
 
-**Status: working (2026-11-06).** A package made for Guitar Hero 5, the Megadeth Track Pack, installs from GH5 Launcher's DLC
-page and its songs show in the game.
+**Status: working (2026-11-10).** The player's DLC folder: the game reads Xbox 360 content packages where they are
+(0.2.1-beta.2 on; before, the launcher extracted each package). Checked with a collection of 191 packages on a hard
+disk: Guitar Hero 5's 64 and Death Magnetic for this game, its songs played without a cut in the sound.
 
-GH5 Launcher's DLC page installs Xbox 360 content packages (STFS: LIVE, PIRS or CON) with the game itself:
-`GH5Recomp.exe --install_content=<package>` extracts one into
+## Your DLC folder (0.2.1-beta.2)
 
-    userdata\0000000000000000\41560840\00000002\<package name>\
+GH5 Launcher's DLC page takes the folder where the player keeps their packages (STFS files: LIVE, PIRS or CON, in it
+and its subfolders), as many games' as they like; the other ElGus Recomps launchers can use the same folder. The
+launcher reads each package's header and the names at its root, checks it against this game's rule (below, "A package
+of another game"), and writes the game's list, `userdata\0000000000000000\41560840\content_packages.txt`, with the
+packages on. The game (the SDK's change 80) lists those packages as its downloadable content and reads them from their
+files: nothing is copied, written or deleted. The page groups the packages by the game they were made for, each with a
+switch (a group's switch turns all of it); those made for another game come turned off. The folder and the player's
+choices are in `dlc_library.txt` beside the list; the folder is read again each time the launcher opens.
+
+Packages installed by an earlier launcher (extracted into `userdata\0000000000000000\41560840\00000002\<package>\`)
+keep working and show as "Installed copies". One that is also in the DLC folder (the same file name, or the same name
+and size) shows once, as the copy the game reads; "Remove copies" deletes those copies after a confirmation, and the
+folder's packages take their place.
+
+Reading from a hard disk: the six packages the game opens at the start for their manifests mount in 8-21 ms each (the
+file table only); the STFS reads of a song (its pak, its streamed audio) take a lock per package (SDK change 79).
 
 ## What was checked
 
@@ -58,5 +73,5 @@ Details: `local_docs/20-dlc-damaged-warning.md`.
 
 ## Turning it off
 
-Turn the package off on the DLC page (or remove it), or move its folder out of `00000002`. `kHasDlcPage` in
-`launcher/game.h` hides the page.
+Turn the package (or its game's group) off on the DLC page. Without a DLC folder chosen, the game's list is not
+written and the game reads only what is extracted into `00000002`. `kHasDlcPage` in `launcher/game.h` hides the page.

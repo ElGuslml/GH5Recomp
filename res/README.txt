@@ -84,9 +84,13 @@ when you press PLAY.
     Alt can be Star Power. F1 to F12 can be assigned too: a key on a control only presses that control.
   - Microphone (experimental): the microphone you sing with, its channel and gain, and its level (see
     SINGING).
-- DLC: install your own Guitar Hero 5 downloadable content. "Choose folder..." looks for packages in a folder
-  and its subfolders; your files stay where they are. The songs of a Track Pack show in the song list. Packages of
-  other Guitar Hero games install but add no songs.
+- DLC: choose the folder where you keep your Xbox 360 packages (LIVE, PIRS or CON files, in it or its
+  subfolders). The game reads them from there: nothing is copied, and the other ElGus Recomps launchers can
+  use the same folder. The packages are listed by the game they were made for, each with a switch; those
+  made for another game come turned off (with one on, the game would say a package is damaged and turn off
+  all your DLC). The songs of a Track Pack show in the song list. DLC installed by an earlier version keeps
+  working; if your folder has the same packages, "Remove copies" deletes the installed copies to free space
+  (it asks first, and never touches your folder).
 - Settings:
   - Video: the monitor, fullscreen, borderless or window, the resolution, the image format (fill a screen
     wider than 16:9, where the stage is seen wider while the note highway, the HUD and the menus stay 16:9

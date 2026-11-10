@@ -150,13 +150,14 @@ inline constexpr std::array<Toggle, 5> kToggles{{
 inline constexpr bool kHasDlcPage = true;
 
 // Which installed packages the game reads (local_docs/20, docs/dlc.md). Its script 5A4B6A0C resolves every content
-// folder by a manifest: a package is known by the QBKey of its display name (sub_823C0608, 128 characters) and must
+// folder by a manifest: a package is known by the QBKey of its display name (sub_823C0608; its first 42 characters,
+// XCONTENT's length, as the community's tools name their manifests: "All Nightmare Long - GHWT"'s) and must
 // carry "bmanifest_<key>.pak.xen" (GH5's own packs do) or be named in another pack's manifest (each lists the packs
 // before it) or in the disc's own list (one entry: Death Magnetic). With one it cannot resolve, it reports a damaged
 // package and turns off every DLC.
 inline constexpr uint32_t kDlcDiscNames[] = {0x903733C1, 0x477946E0};
 inline constexpr DlcRule kDlcRule{.manifest_prefix = "bmanifest_",
-                                  .name_length = 128,
+                                  .name_length = 42,
                                   .known_names = kDlcDiscNames,
                                   .foreign = DlcForeign::kDisablesAll};
 

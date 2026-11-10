@@ -23,6 +23,9 @@
 ; uninstall entry.
 #define RepoUrl "https://github.com/ElGuslml/GH5Recomp"
 
+; The file's version takes numbers alone: 0.2.1 for "0.2.1-beta.1".
+#define FileVersion Copy(AppVersion, 1, Pos("-", AppVersion + "-") - 1)
+
 [Setup]
 ; Never change the AppId: Windows knows the installation by it, and a newer installer finds the older one with it.
 AppId={{A80F3BF7-70F8-436B-99EF-A4F3B25771FC}
@@ -35,7 +38,7 @@ AppPublisherURL={#RepoUrl}
 AppSupportURL={#RepoUrl}/issues
 AppUpdatesURL={#RepoUrl}/releases
 #endif
-VersionInfoVersion={#AppVersion}.0
+VersionInfoVersion={#FileVersion}.0
 VersionInfoDescription={#AppName} (Recomp) setup
 PrivilegesRequired=lowest
 DefaultDirName={autopf}\GH5Recomp

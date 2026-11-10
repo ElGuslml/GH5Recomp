@@ -145,9 +145,10 @@ inline constexpr std::array<Toggle, 5> kToggles{{
 
 // --- Downloadable content ---
 
-// The DLC page (page_dlc.cpp, dlc.h): Xbox 360 content packages, each installed by the game's --install_content tool
-// mode (SDK change 44) into its user data's content folder.
+// The DLC page (page_dlc.cpp, dlc.h; docs/dlc.md): the player's DLC folder, its packages read by the game where they
+// are (SDK change 80, content_packages.txt); packages extracted by launchers before 3.16 still read.
 inline constexpr bool kHasDlcPage = true;
+inline constexpr DlcMode kDlcMode = DlcMode::kFolder;
 
 // Which installed packages the game reads (local_docs/20, docs/dlc.md). Its script 5A4B6A0C resolves every content
 // folder by a manifest: a package is known by the QBKey of its display name (sub_823C0608; its first 42 characters,

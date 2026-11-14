@@ -305,3 +305,30 @@ registers = ["f1"]
 address = 0x825CD048   # fmr f31,f0 (sub_825CCE98, after the shadow map's texel size is loaded)
 name = "GH5ShadowFilterHook"
 registers = ["f0", "f12"]
+
+# GH Metallica's of 2026-11-11 (src/debug_menu.cpp, src/intro.cpp): script globals read as 1 in given scripts only.
+# The game's debug menu offered in the main and pause menus (gh5_debug_menu: enable_button_cheats in the scripts that
+# build them), and the boot's intro video ended once the game has loaded (gh5_skip_intro: end_movie_early in
+# destroy_loading_screen_spawned). The script interpreter's statement (sub_823B3220, r31 = the script, its name at +244)
+# evaluates expressions with sub_8254BB50 at two places (none of these addresses is a branch target); sub_823AAB98
+# resolves a "$name" component (r3) to the global's value. GH Van Halen's sub_822E1468, sub_823C1408 and sub_822CEBB8
+# (tools/port/map3.pkl), the same instructions around each hook.
+[[midasm_hook]]
+address = 0x823B33EC   # lwz r3,16(r31), before bl 0x8254BB50 at 0x823B33F0
+name = "GH5ScriptEvalEnterHook"
+registers = ["r31"]
+[[midasm_hook]]
+address = 0x823B33F4   # stw r3,16(r31), after it
+name = "GH5ScriptEvalLeaveHook"
+[[midasm_hook]]
+address = 0x823B3754   # bl 0x8254BB50 (the other evaluation, when bne 0x823B3760 is not taken)
+name = "GH5ScriptEvalEnterHook"
+registers = ["r31"]
+[[midasm_hook]]
+address = 0x823B3758   # stw r3,16(r31), after it
+name = "GH5ScriptEvalLeaveHook"
+[[midasm_hook]]
+address = 0x823AAB98   # lbz r11,2(r3) (the entry of sub_823AAB98): r3 = the component
+name = "GH5GlobalResolveHook"
+registers = ["r3"]
+return_on_true = true

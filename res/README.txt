@@ -117,7 +117,8 @@ when you press PLAY.
     the debug menu its developers used, in the main menu and the pause menu (its texts in English; Unlock All
     changes your save).
   - Audio: the output device (Windows default, or another one), the channels (Automatic, Stereo or Mono:
-    the same sound on both sides), the volume, mute while another window is in front, and Low latency audio
+    the same sound on both sides), the volume (0 to 200 %: above 100 % the game is louder than its own
+    mix and its loudest moments can distort), mute while another window is in front, and Low latency audio
     (off by default): the game takes your audio device in exclusive mode and the sound comes sooner (about
     55 ms on a USB audio interface); other programs cannot play on that device while the game runs.
     Calibrate the audio again after changing it.

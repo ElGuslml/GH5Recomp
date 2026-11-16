@@ -105,6 +105,8 @@ From then on, the launcher keeps itself up to date: when a new version comes out
   with your monitor, without V-Sync's usual delay); leave it on with a G-Sync or FreeSync monitor too.
 - 🔊 **Low latency audio:** optional, in the launcher's Settings: the game takes your audio device in exclusive mode,
   and the sound comes up to about 55 ms sooner (measured in GHMetalRecomp on a USB audio interface).
+- 🔈 **Louder when you need it:** the volume goes up to 200 % in **Settings → Audio**, for a game that sounds quiet next
+  to the rest of your PC (above 100 % its loudest moments can distort). *(By [Panchovix](https://github.com/Panchovix).)*
 - 📺 **Wide and ultrawide screens:** the stage fills 16:9, 21:9 and wider screens, while the note highway, the HUD and
   the menus keep their shape in the center.
 - 👤 **Profiles:** your saves, achievements and playtime in a profile shared by all the ElGus Recomps launchers.
@@ -148,7 +150,7 @@ Everything is set up from **GH5 Launcher**, with the mouse, the keyboard or a co
 | 🏆 **Achievements** | All 49 achievements, the ones you have unlocked and when. |
 | 🎮 **Controls** | Your guitars, controllers and keyboard: what each button or key does, and which controller plays drums (five or four lanes) or sings. The keyboard as a guitar or a drum kit (experimental). Frets that strum as you press them, on a controller or the keyboard. A whammy bar's and a tilt's assignment. Your microphone (experimental): device, gain and level. |
 | 🎶 **DLC** | Your DLC folder: the game reads your packages from there, nothing copied. They are grouped by the game they were made for, each with its switch. |
-| ⚙️ **Settings** | **Game:** the game's and the launcher's language, the intro video ended as soon as the game has loaded, the game's own debug menu. **Audio:** output device, channels, volume, mute in the background, Low latency audio. **Video:** monitor, fullscreen or window, resolution, image format (fill a wide screen or keep 16:9), upscaling (AMD FSR 1, NVIDIA NIS) and sharpness, shadow quality, V-Sync (on by default: no tearing, without V-Sync's usual delay; leave it on with a G-Sync or FreeSync monitor too). **Graphics:** renderer, graphics card, frame rate, antialiasing, texture sharpness, the game's screen effects. |
+| ⚙️ **Settings** | **Game:** the game's and the launcher's language, the intro video ended as soon as the game has loaded, the game's own debug menu. **Audio:** output device, channels, volume (up to 200 %), mute in the background, Low latency audio. **Video:** monitor, fullscreen or window, resolution, image format (fill a wide screen or keep 16:9), upscaling (AMD FSR 1, NVIDIA NIS) and sharpness, shadow quality, V-Sync (on by default: no tearing, without V-Sync's usual delay; leave it on with a G-Sync or FreeSync monitor too). **Graphics:** renderer, graphics card, frame rate, antialiasing, texture sharpness, the game's screen effects. |
 | 🔄 **Updates** | Your version, and new ones when they come out. |
 | 👤 **Profile** | Your picture at the top right: hours played, streaks, your week, your games and your favorite achievements. |
 
@@ -258,6 +260,7 @@ it will get fixed. Thanks for giving this game a try! ❤️
 - [GHVanHRecomp](https://github.com/ElGuslml/GHVanHRecomp) and [GHMetalRecomp](https://github.com/ElGuslml/GHMetalRecomp),
   whose fixes this game shares.
 - [extract-xiso](https://github.com/XboxDev/extract-xiso), for extracting game files.
+- [Panchovix](https://github.com/Panchovix), for the volume up to 200 % and the one-step present in the renderer.
 - Developed by Gustavo Garcia with the help of Claude (Anthropic): see [the note about AI](#-a-note-about-ai).
 
 ## 📜 License

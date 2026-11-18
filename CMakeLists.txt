@@ -64,7 +64,10 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${GH5_SOURCES_MA
 
 # Sources
 set(GH5_SOURCES
+    src/controller_layout.cpp
     src/debug_menu.cpp
+    src/drums.cpp
+    src/fence_stamps.cpp
     src/fmod_mix.cpp
     src/framerate.cpp
     src/intro.cpp
@@ -76,6 +79,7 @@ set(GH5_SOURCES
     src/quit_prompt.cpp
     src/screen_fx.cpp
     src/skinning.cpp
+    src/split_render.cpp
     src/startup.cpp
     src/thread_waits.cpp
     src/timer.cpp

@@ -134,6 +134,12 @@ critical_section_spin_us = 20
 # (orange), strumming on the D-pad, the whammy bar on the right stick, Star Power on Back. A real
 # guitar or drum kit keeps its own kind. 8 = drum kit, 0 = the SDK default (a gamepad).
 gamepad_subtype = 6
+# A controller plays a song as in Guitar Hero III, which had a layout for one (the menus stay as they are: A, B, the
+# D-pad): the frets on LT (green), LB (red), RB (yellow), RT (blue) and A (orange), no strum (a change of the frets
+# held plays, while one is held: a fret pressed, or one released while another is held), Star Power on the D-pad or
+# Back, the whammy bar on either stick (src/controller_layout.cpp). "guitar": an Xbox 360 guitar's controls, frets on
+# A, B, Y, X and LB, strumming on the D-pad, the whammy bar on the right stick, the tilt on its Y, Star Power on Back.
+gamepad_guitar_layout = "gh3"
 # A PS3 Guitar Hero guitar (a CRKD guitar on its P3 setting too): yellow and blue, swapped on that protocol, put right,
 # and its whammy bar, which rests at the middle of its axis, at rest there.
 guitar_ps3_protocol = true
@@ -207,6 +213,11 @@ gh5_fx_depth_of_field = true
 gh5_fx_grain = true
 gh5_fx_color = true
 gh5_fx_vignette = true
+# The 3D scene drawn in every frame (src/split_render.cpp): the game draws the venue and the crowd in one frame and the
+# band and the screen effects in the next, so its 3D image changes at half the frame rate (30 times a second on the
+# console; the note highway and the HUD every frame). true turns that split off: the whole scene in every frame, for
+# about twice the 3D work a frame (CPU and GPU). false = as on the console.
+gh5_scene_every_frame = false
 # The game's own debug menu (Neversoft's, src/debug_menu.cpp): true adds an item named (debug menu) to the main menu
 # and a Debug Menu item to the pause menu (Unlock All, Skip Into Song, Change Venue, Select Slomo, Show Song Time, Toggle GPU
 # Time, ...). Some items need Neversoft's development tools and do nothing. false = as on the console.

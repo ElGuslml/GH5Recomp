@@ -115,6 +115,13 @@ address = 0x8248A4A8   # mflr r12 (entry of sub_8248A4A8: a controller port's up
 name = "GH5ControllerPortHook"
 registers = ["r3"]
 
+# A drum kit on five lanes unless the launcher marks it four-lane (src/drums.cpp, gh5_drum_kit_five_lanes): the game
+# itself gives five lanes only to a kit holding the left stick's click.
+[[midasm_hook]]
+address = 0x8248A0C8   # cmpwi cr6,r11,11 (sub_82489C60, the port's state: r11 = the port's type, r30 = the port)
+name = "GH5DrumKitLanesHook"
+registers = ["r11", "r30"]
+
 # Ultrawide (src/widescreen.cpp), with gh5_ultrawide: the projection of every 16:9 view is widened (Hor+: the 3D views
 # see more at the sides; their aspect ratio is the view's size, not the SetScreen aspect), and the screen elements'
 # vertices (pixels of the 1280x720 canvas) are narrowed around the center just before they are drawn to the screen
@@ -201,6 +208,18 @@ registers = ["r4"]
 [[midasm_hook]]
 address = 0x824C0770   # addi r1,r1,112 (sub_824C06B0's exit, every path)
 name = "GH5ButtonPollEndHook"
+# Star Power by Select above 60 FPS (GH Warriors of Rock's pull request #5): check_for_star_power_CFunc reads the
+# one-frame pressed bits outside ControllerMake; it is given the presses of the frames its held script skipped.
+[[midasm_hook]]
+address = 0x822390D8   # mflr r12 (entry of sub_822390D8, the script function check_for_star_power_CFunc: r4 = the script)
+name = "GH5StarPowerPollHook"
+registers = ["r4"]
+[[midasm_hook]]
+address = 0x82239738   # addi r1,r1,1568 (sub_822390D8's exit after its state 3)
+name = "GH5StarPowerPollEndHook"
+[[midasm_hook]]
+address = 0x82239884   # addi r1,r1,1568 (sub_822390D8's other exit, a branch target: every other path)
+name = "GH5StarPowerPollEndHook"
 # The frames' real length (src/framerate.cpp: what is counted in frames above 60 Hz keeps the console's time by it when
 # the frame rate falls below the chosen one), measured once a frame on the main thread.
 [[midasm_hook]]
@@ -332,3 +351,74 @@ address = 0x823AAB98   # lbz r11,2(r3) (the entry of sub_823AAB98): r3 = the com
 name = "GH5GlobalResolveHook"
 registers = ["r3"]
 return_on_true = true
+
+# The 3D scene drawn in every frame (src/split_render.cpp, gh5_scene_every_frame): the engine's split render mode
+# written off in both copies of the render state, each frame.
+[[midasm_hook]]
+address = 0x82413ABC   # lwz r11,3928(r31) (sub_82413AA0: the main thread's frame, the split render mode)
+name = "GH5SplitRenderHook"
+
+# D3D's fence stamps written through the physical view (src/fence_stamps.cpp, gh5_fence_stamps_unwatched): the
+# store skipped when the hook wrote it.
+[[midasm_hook]]
+address = 0x8230F958   # stw r11,8(r28) (sub_8230F8C8, SetStreamSource: the previous vertex buffer), then b 0x8230F9B0
+name = "GH5StreamFenceHook"
+registers = ["r11", "r28"]
+jump_address_on_true = 0x8230F9B0
+[[midasm_hook]]
+address = 0x8230FA9C   # stw r11,8(r30) (sub_8230FA70, SetIndices: the previous index buffer), then b 0x8230FAF4
+name = "GH5IndicesFenceHook"
+registers = ["r11", "r30"]
+jump_address_on_true = 0x8230FAF4
+
+# A controller as in Guitar Hero III (src/controller_layout.cpp, gamepad_guitar_layout = "gh3"): after each
+# gameplay check of sub_821D3450 (is a guitar: a port of 4 or more, or a device type 8 or 9), a controller on that
+# layout is not a guitar, so the game's own controller code plays it. The registers are listed in the C++ roles' order.
+[[midasm_hook]]
+address = 0x821E1324   # clrlwi r11,r3,24 (sub_821E12A8: the frets and the strum, right after bl sub_821D3450; the player in r26)
+name = "GH5ControllerReadHook"
+registers = ["r3", "r4", "r26"]
+[[midasm_hook]]
+address = 0x821D53F8   # mr r14,r3 (sub_821D4EF0: the input logic's controller rules; then stb r3,100(r1))
+name = "GH5ControllerLayoutHook"
+registers = ["r3", "r4"]
+[[midasm_hook]]
+address = 0x822393F4   # clrlwi r11,r3,24 (check_for_star_power_CFunc sub_822390D8: Star Power on the D-pad)
+name = "GH5ControllerLayoutHook"
+registers = ["r3", "r4"]
+[[midasm_hook]]
+address = 0x821E8F58   # clrlwi r11,r29,24 (sub_821E8DE0, ControlWhammyPitchShift's)
+name = "GH5ControllerLayoutHook"
+registers = ["r3", "r4"]
+[[midasm_hook]]
+address = 0x821C3220   # clrlwi r11,r3,24 (sub_821C3188, ButtonCheckerPerFrame's)
+name = "GH5ControllerLayoutHook"
+registers = ["r3", "r4"]
+[[midasm_hook]]
+address = 0x821E20C0   # clrlwi r11,r3,24 (sub_821E2020, ButtonCheckerPerFrame's and the input logic's)
+name = "GH5ControllerLayoutHook"
+registers = ["r3", "r4"]
+[[midasm_hook]]
+address = 0x821D43DC   # clrlwi r11,r11,24 (sub_821D4238, GetHeldPattern's inline check; the port in r31)
+name = "GH5ControllerLayoutHeldHook"
+registers = ["r11", "r31"]
+[[midasm_hook]]
+address = 0x821E14F0   # cmpwi cr6,r27,0 (sub_821E12A8's controller path: the player in r26, the frets held in r31)
+name = "GH5ControllerFretsHook"
+registers = ["r26", "r31"]
+[[midasm_hook]]
+address = 0x821D5CD4   # li r31,0 (sub_821D4EF0: a gem hit; the player in r26)
+name = "GH5ControllerHitHook"
+registers = ["r26"]
+[[midasm_hook]]
+address = 0x821D5DF8   # cmpwi cr6,r11,1 (sub_821D4EF0: a controller's chord, the flag +0x180A4 in r11; gem frets r27, player r26)
+name = "GH5ControllerChordHook"
+registers = ["r11", "r27", "r26"]
+[[midasm_hook]]
+address = 0x821E9E2C   # li r11,1 (sub_821E9A40: a sustain's frame, its frets let go ended; the player in r31)
+name = "GH5ControllerSustainHook"
+registers = ["r25", "r26", "r31"]
+[[midasm_hook]]
+address = 0x821E6EC4   # clrlwi r11,r3,24 (sub_821E6DB0, after bl sub_821D3480 IsGuitarController; the player in r30)
+name = "GH5ControllerWhammyHook"
+registers = ["r3", "r30"]

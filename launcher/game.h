@@ -145,15 +145,18 @@ inline constexpr std::array<Language, 5> kLanguages{{
 // titles, hints and help are game.cpp's (GameTexts::toggles and toggle_help, in this order).
 // The screen effects (src/screen_fx.cpp, docs/fixes-from-gh-van-halen.md), all on as on the console: the grain only
 // with the color correction (GH Van Halen's rule: without that pass its grain was far stronger). GH Van Halen's ink
-// blotches are not part of GH5's composite: no switch. Then two in Settings > Game, off as on the console (GH
+// blotches are not part of GH5's composite: no switch. Display > Smoothness: the 3D scene drawn in every frame, off as
+// on the console (the engine's split render mode off, src/split_render.cpp, as GH Warriors of Rock's). Then two in
+// Settings > Game, off as on the console (GH
 // Metallica's, docs/fixes-from-gh-metallica.md): the boot's intro video ended once the game has loaded
 // (src/intro.cpp) and the game's debug menu (src/debug_menu.cpp).
-inline constexpr std::array<Toggle, 7> kToggles{{
+inline constexpr std::array<Toggle, 8> kToggles{{
     {"gh5_fx_bloom", true, ToggleGroup::kScreenEffects},
     {"gh5_fx_depth_of_field", true, ToggleGroup::kScreenEffects},
     {"gh5_fx_color", true, ToggleGroup::kScreenEffects},
     {"gh5_fx_grain", true, ToggleGroup::kScreenEffects, "gh5_fx_color"},
     {"gh5_fx_vignette", true, ToggleGroup::kScreenEffects},
+    {"gh5_scene_every_frame", false, ToggleGroup::kSmoothness},
     {"gh5_skip_intro", false, ToggleGroup::kStart},
     {"gh5_debug_menu", false, ToggleGroup::kModsTools},
 }};
@@ -250,6 +253,12 @@ inline constexpr const char* kKeyboardTapTarget = "dpad_down";
 // The whammy bar's row on each controller playing guitar (page_controls.cpp): how far the game reads the bar, and its
 // calibration (the SDK's gamepad_whammy_calibration, recomp change 60: the axis it is on, at rest and all the way).
 inline constexpr bool kHasWhammy = true;
+// Guitar Hero III's controller layout for a controller playing guitar, on by default (src/startup.cpp's
+// gamepad_guitar_layout = "gh3"; the SDK's change 112), as in GH Warriors of Rock: this game gives a plain controller the
+// vocals, so it is told a controller is a guitar, and in a song the controller plays as Guitar Hero III's did, on
+// buttons of its own (the launcher's "In a song" rows, the SDK's gamepad_song_binds, change 113), through the game's own
+// controller code (src/controller_layout.cpp).
+inline constexpr bool kHasGh3PadLayout = true;
 
 // --- Singing ---
 

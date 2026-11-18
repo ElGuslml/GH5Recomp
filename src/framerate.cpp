@@ -289,6 +289,14 @@ void GH5FrameWaitCountHook(PPCRegister& r3, PPCRegister& r11) {
 // seen with this; the audio calibration polls the same way). Each script is given the presses of the updates since its previous run that
 // it did not see, once, from the last 60th of a second and a frame (of the frames' recent length): they are added to the
 // state's pressed bits while its ControllerMake runs, then the bits are put back.
+// Star Power by Select (Back) is read the same way, not through ControllerMake (GH Warriors of Rock's fix, Panchovix's
+// pull request #5 there): the script check_for_star_power (0xB1330633, one of the scripts whose waits are held) calls
+// check_for_star_power_CFunc (sub_822390D8; its name in the game's table of script functions) once a pass and waits 1
+// game frame. Its check of Select is sub_824C0268(pad, 0xB40D153F = 'select') at 0x82239520, bit 0x100 of the pressed
+// bits at +52, the same one-frame edge, and on a plain gamepad up, down, left and right after it (0x82239574-0x822395C8;
+// the Guitar Hero III layout's Star Power on the D-pad, src/controller_layout.cpp). That wait is held too, so above
+// 60 FPS the script ran every second frame or so and presses fell in frames it did not look at. It is given the
+// skipped presses the same way while sub_822390D8 runs, with its own record of what was patched.
 namespace {
 
 // Enough for the updates between two runs of a script held to 60 a second at up to 1000 frames a second (16); with
@@ -317,6 +325,8 @@ InputUpdates g_input[4];
 std::unordered_map<uint64_t, ScriptPolls> g_script_polls;  // by script << 32 | state
 thread_local PatchedState g_patched[4];
 thread_local int g_patched_count = 0;
+thread_local PatchedState g_star_patched[4];
+thread_local int g_star_patched_count = 0;
 
 uint8_t* GuestBase() {
   auto* kernel = rex::system::kernel_state();
@@ -354,12 +364,16 @@ void GH5InputUpdateHook(PPCRegister& r30, PPCRegister& r9) {
   }
 }
 
-// [[midasm_hook]] at the entry of sub_824C06B0 (ControllerMake): r4 = the script.
-void GH5ButtonPollHook(PPCRegister& r4) {
-  g_patched_count = 0;
+namespace {
+
+// A script polling the pressed bits (r4 at its script function's entry) is given the presses of the updates since its
+// previous run that it did not see: they are added to the states' bits at +52 and recorded in patched. Returns the bits
+// given.
+uint32_t GiveSkippedPresses(uint32_t script, PatchedState* patched, int& count) {
+  count = 0;
   uint8_t* base = GuestBase();
   if (!HighRate() || !base) {
-    return;
+    return 0;
   }
   const auto now = std::chrono::steady_clock::now();
   const auto window = std::chrono::duration<double>(1.0 / 60.0 + FrameInterval());
@@ -367,11 +381,12 @@ void GH5ButtonPollHook(PPCRegister& r4) {
   if (g_script_polls.size() > 256) {
     std::erase_if(g_script_polls, [&](const auto& entry) { return now - entry.second.last > std::chrono::seconds(1); });
   }
+  uint32_t given = 0;
   for (const InputUpdates& input : g_input) {
     if (input.state == 0) {
       continue;
     }
-    ScriptPolls& polls = g_script_polls[uint64_t(r4.u32) << 32 | input.state];
+    ScriptPolls& polls = g_script_polls[uint64_t(script) << 32 | input.state];
     if (polls.last == std::chrono::steady_clock::time_point{} || now - polls.last > window * 4) {
       polls.run_seq = polls.prev_seq = input.seq;  // a script new to polling: only the current update
     } else if (polls.run_seq != input.seq) {
@@ -390,22 +405,45 @@ void GH5ButtonPollHook(PPCRegister& r4) {
     const uint32_t original = LoadWord(base, input.state + 52);
     if (missed & ~original) {
       StoreWord(base, input.state + 52, original | missed);
-      g_patched[g_patched_count++] = {input.state, original | missed, original};
+      patched[count++] = {input.state, original | missed, original};
+      given |= missed & ~original;
     }
+  }
+  return given;
+}
+
+// At the script function's exit: the pressed bits recorded in patched put back.
+void TakeBackPresses(const PatchedState* patched, int& count) {
+  uint8_t* base = GuestBase();
+  for (int i = 0; i < count && base; ++i) {
+    if (LoadWord(base, patched[i].state + 52) == patched[i].written) {
+      StoreWord(base, patched[i].state + 52, patched[i].original);
+    }
+  }
+  count = 0;
+}
+
+}  // namespace
+
+// [[midasm_hook]] at the entry of sub_824C06B0 (ControllerMake): r4 = the script.
+void GH5ButtonPollHook(PPCRegister& r4) { GiveSkippedPresses(r4.u32, g_patched, g_patched_count); }
+
+// [[midasm_hook]] 0x824C0770 (sub_824C06B0's exit, every path): the pressed bits put back.
+void GH5ButtonPollEndHook() { TakeBackPresses(g_patched, g_patched_count); }
+
+// [[midasm_hook]] at the entry of sub_822390D8 (check_for_star_power_CFunc): r4 = the script. Its own record, so a
+// ControllerMake between its entry and its exit would not lose it.
+void GH5StarPowerPollHook(PPCRegister& r4) {
+  const uint32_t given = GiveSkippedPresses(r4.u32, g_star_patched, g_star_patched_count);
+  static std::atomic<int> logged{0};
+  if ((given & 0x100) && logged.fetch_add(1) < 20) {
+    REXLOG_INFO("[frame rate] star power: a Back press from a frame check_for_star_power skipped was given to it");
   }
 }
 
-// [[midasm_hook]] 0x824C0770 (sub_824C06B0's exit, every path): the pressed bits put back.
-void GH5ButtonPollEndHook() {
-  uint8_t* base = GuestBase();
-  for (int i = 0; i < g_patched_count && base; ++i) {
-    const PatchedState& patched = g_patched[i];
-    if (LoadWord(base, patched.state + 52) == patched.written) {
-      StoreWord(base, patched.state + 52, patched.original);
-    }
-  }
-  g_patched_count = 0;
-}
+// [[midasm_hook]] 0x82239738 and 0x82239884 (sub_822390D8's two exits, addi r1,r1,1568; the second a branch target that
+// every other path reaches): the pressed bits put back.
+void GH5StarPowerPollEndHook() { TakeBackPresses(g_star_patched, g_star_patched_count); }
 
 // The whammy on a sustain (the note hold update sub_821E9A40 -> sub_821E96C8, run every frame for each player:
 // sub_821D4EF0 -> sub_821EAD28 -> sub_821EA630, 120 calls a second at 120 FPS): sub_821E6DB0 (the whammy bar;

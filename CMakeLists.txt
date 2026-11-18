@@ -80,6 +80,7 @@ set(GH5_SOURCES
     src/screen_fx.cpp
     src/skinning.cpp
     src/split_render.cpp
+    src/star_power_reverb.cpp
     src/startup.cpp
     src/thread_waits.cpp
     src/timer.cpp

@@ -226,6 +226,13 @@ gh5_debug_menu = false
 # has loaded, as if Start were pressed then: Party Play right after the loading (src/intro.cpp). false = as on the
 # console.
 gh5_skip_intro = false
+# Guitar Hero World Tour's Star Power sound (src/star_power_reverb.cpp, from GH Warriors of Rock): while a player's
+# Star Power is on, their instrument goes through World Tour's echo timed to the song, reverb and high pass, with World
+# Tour's settings for each instrument and for one or more players, instead of the venue's reverb. The band, the crowd
+# and the vocals do not change. false = as on the console. With it on, gh5_star_power_reverb_send_db (dB added to
+# World Tour's send, 0) and gh5_star_power_reverb_multi_preset (true: World Tour's settings for several players for
+# one player too) can be added here to tune it.
+gh5_star_power_reverb = false
 # The mouse cursor hidden over the game after cursor_auto_hide_ms without moving it (shown again when it moves, while
 # another window has the focus, and over the SDK's overlays). false = always shown.
 cursor_auto_hide = true

@@ -422,3 +422,40 @@ registers = ["r25", "r26", "r31"]
 address = 0x821E6EC4   # clrlwi r11,r3,24 (sub_821E6DB0, after bl sub_821D3480 IsGuitarController; the player in r30)
 name = "GH5ControllerWhammyHook"
 registers = ["r3", "r30"]
+
+# Guitar Hero World Tour's Star Power sound (src/star_power_reverb.cpp, gh5_star_power_reverb, off: every hook returns
+# at once). World Tour sent the player's instrument to a send stack of its own (echo, sfxreverb, highpass) while the
+# player's Star Power was on; GH5 keeps World Tour's scripts and structs but only raises the send to the venue's
+# reverb. The boot creates World Tour's stack on the engine's free slot 2, right after the venue's on slot 1, and Star
+# Power sends the player's tracks there with World Tour's settings. The engine's send applied at once read the next
+# slot's volume and cleared a byte of the next slot's send (harmless while slot 2 was always 0; for slot 2 the byte is
+# past the 112-byte track): both made the slot's own, for slot 2, and for slot 1 while slot 2 sends. The song player's
+# clean-up cuts slot 2's sends of the tracks still there (at a song's load, before the stems' are destroyed) and mutes
+# the stack's tail, a track's destruction removes its own; the pause mutes slot 2 with slot 1. GH Warriors of Rock's
+# hooks (its ghwor_functions.toml), each found here by the function matcher and compared instruction by instruction.
+[[midasm_hook]]
+address = 0x823B62C8   # b 0x823B62D0 (sub_823B6248, CreateEffectSendStack: the stack created by sub_823CBB20, r30 = its slot)
+name = "GH5StarPowerStackHook"
+registers = ["r1", "r30"]
+[[midasm_hook]]
+address = 0x821669F8   # mflr r12 (entry of sub_821669F8, SongSetVenueEffectSendVolume's player send: r3 = the SAP 0x82CC84C0, r4 = the player, f1 = the send's volume)
+name = "GH5StarPowerSendHook"
+registers = ["r1", "r3", "r4", "f1"]
+return_on_true = true
+[[midasm_hook]]
+address = 0x82168BF4   # addi r10,r11,56 (sub_82168B10, a send applied at once: before stb r8,76(r11) and lfs f1,56(r11); r11 = the track r31 + 24 * slot r29)
+name = "GH5TrackSendFixHook"
+registers = ["r11", "r29", "r31"]
+[[midasm_hook]]
+address = 0x82165FA0   # mflr r12 (entry of sub_82165FA0: the song player's clean-up, at init, load and deinit)
+name = "GH5StarPowerCleanupHook"
+registers = ["r1"]
+[[midasm_hook]]
+address = 0x823CBA88   # mflr r12 (entry of sub_823CBA88, MuteEffectSend / UnMuteEffectSend: r3 = slot, r4 = mute)
+name = "GH5StarPowerMuteHook"
+registers = ["r1", "r3", "r4"]
+# The effect pool keeps no count of the most taken at once: followed for the option's warning (changes nothing).
+[[midasm_hook]]
+address = 0x823CB468   # stw r7,8(r11) (sub_823CB428, an effect taken from the pool: r7 = the effects taken now)
+name = "GH5StarPowerPoolHook"
+registers = ["r7"]

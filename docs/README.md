@@ -19,5 +19,6 @@ and GHVanHRecomp's.
 | [Crackling in songs on slower PCs](audio-crackling.md) | Fixed in the SDK (change 82): the audio callback's spacing counted from its start, so a slower CPU keeps up |
 | [The fixes from GH Metallica of 2026-11-11 to 13](fixes-from-gh-metallica.md) | Built, not tried in the game yet: the game's debug menu, the intro video ended once the game has loaded, drums on five or four lanes, Settings > Audio and the graphics card; online play and the tap notes' trail not ported (GH5 draws no trail) |
 | [The mouse cursor](mouse-cursor.md) | Hidden over the game after 2 s without moving it (SDK change 103) |
+| [The fixes and options from GH Warriors of Rock](fixes-from-ghwor.md) | Built, checked with the keyboard and a virtual controller, not played with a guitar yet: frame rates above 240, Star Power by Select above 60, the venue at the full frame rate, the fence stamps, five-lane kits, a controller as in Guitar Hero III, Xbox One guitars, World Tour's Star Power sound, the note highway mods, the speakers and the Dolby timing; the crowd switch not ported |
 
 Building the project, its configuration and how the SDK is changed: [`development.md`](development.md).

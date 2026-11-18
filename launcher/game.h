@@ -104,7 +104,18 @@ inline constexpr bool kShadowQuality = kHasNativeXRenderer && true;
 // vblank's rate (src/options.cpp), which the game follows at its own speed.
 inline constexpr const char* kFrameRateCvar = GAME_FRAME_RATE_CVAR;
 inline constexpr bool kFrameRateIsBool = false;
-inline constexpr std::array<FrameRate, 6> kFrameRates{{{60, 60}, {120, 120}, {144, 144}, {160, 160}, {165, 165}, {240, 240}}};
+// Above 240 (RecompLauncher 3.31, with V-Sync off; Gustavo, 2026-11-18, as GH Warriors of Rock): 300, 360, 480 and
+// Unlimited (1000 Hz, the SDK's ceiling), experimental: the rings of src/framerate.cpp hold a 60th of a second at 1000.
+inline constexpr std::array<FrameRate, 10> kFrameRates{{{60, 60},
+                                                        {120, 120},
+                                                        {144, 144},
+                                                        {160, 160},
+                                                        {165, 165},
+                                                        {240, 240},
+                                                        {300, 300},
+                                                        {360, 360},
+                                                        {480, 480},
+                                                        {1000, 0}}};
 inline constexpr int kFrameRateDefault = 60;
 
 // The Xenos path's MSAA turned off (src/msaa.cpp): the Graphics page's antialiasing row with Xenos, the game's own

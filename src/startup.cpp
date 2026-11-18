@@ -115,6 +115,11 @@ audio_wasapi_exclusive_queue = 2
 # frames). "immediate" and false = V-Sync off (tearing, or a G-Sync / FreeSync display following the game).
 native_x_renderer_present_mode = "vsync"
 vblank_follows_display = true
+# NativeXRenderer records its DiligentCore calls on a thread of their own while its renderer's thread prepares the next
+# commands (D154, D155), on as in GH Warriors of Rock (its Quest song with the venue every frame at 3440x1440: at 240
+# FPS every stretch at 230 or more, 225.7 without it; the renderer's thread at about half of the frame). With V-Sync,
+# D172 drops one frame when the display's queue stays a frame too deep. false = one thread, as before.
+native_x_renderer_record_thread = true
 # Where the vertical blank runs on the SDK's timer (a G-Sync / FreeSync display, V-Sync off): its ticks within a few
 # microseconds of their time (700 us of spinning each; without, up to half a millisecond late), as the display shows
 # each frame when it comes.

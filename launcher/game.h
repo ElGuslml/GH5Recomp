@@ -143,9 +143,17 @@ inline constexpr std::array<Toggle, 7> kToggles{{
     {"gh5_fx_color", true, ToggleGroup::kScreenEffects},
     {"gh5_fx_grain", true, ToggleGroup::kScreenEffects, "gh5_fx_color"},
     {"gh5_fx_vignette", true, ToggleGroup::kScreenEffects},
-    {"gh5_skip_intro", false},
-    {"gh5_debug_menu", false},
+    {"gh5_skip_intro", false, ToggleGroup::kStart},
+    {"gh5_debug_menu", false, ToggleGroup::kModsTools},
 }};
+
+// Rows of the game's own with several values (game_types.h's Choice, launcher 3.29): none yet.
+inline constexpr std::array<Choice, 0> kChoices{};
+
+// Launcher 3.30: the Mods tab's Highway section (gallery and preview): not yet in this game.
+inline constexpr bool kHighwayPreview = false;
+inline constexpr HighwayGallery kHighwayGallery{};
+inline constexpr HighwayAssets kHighwayAssets{};
 
 // --- Downloadable content ---
 
@@ -275,6 +283,11 @@ struct GameTexts {
   std::array<const char*, kToggles.size() * 2> toggles;
   // kToggles' help, the Settings tab's panel for the row in focus; null: the hint.
   std::array<const char*, kToggles.size()> toggle_help{};
+  // kChoices' rows (launcher 3.29): a title and a hint each, their help (null: the hint) and their values' names (null
+  // or missing: the value and the row's suffix).
+  std::array<const char*, kChoices.size() * 2> choices{};
+  std::array<const char*, kChoices.size()> choice_help{};
+  std::array<std::array<const char*, 2>, kChoices.size()> choice_values{};
   // The first run's last screen (the game installed), in the game's spirit; null: the launcher's own.
   const char* done_title = nullptr;
   const char* done_text = nullptr;

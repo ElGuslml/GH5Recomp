@@ -33,7 +33,7 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "Adds a \"(debug menu)\" item to the main menu and a Debug Menu item to the pause menu: the menu the game's developers used (Unlock All, Skip Into Song, Change Venue, Select Slomo, Show Song Time, Toggle GPU Time, ...). Its texts are in English, some items do nothing without the developers' tools, and Unlock All changes your save as playing does.",
       },
       .done_title = "The stage is yours!",
-      .done_text = "The game was installed. Go play now, or first review the video, graphics and instrument settings; "
+      .done_text = "The game was installed. Go play now, or first review the display, graphics and instrument settings; "
                    "you can always change them in the launcher.",
       .dlc_where = "The game lists the songs in Quickplay's song list.",
       .extracting_title = "Tuning up the stage",
@@ -66,7 +66,7 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "Fügt dem Hauptmenü den Eintrag \"(debug menu)\" und dem Pausenmenü den Eintrag Debug Menu hinzu: das Menü der Entwickler des Spiels (Unlock All, Skip Into Song, Change Venue, Select Slomo, Show Song Time, Toggle GPU Time, ...). Seine Texte sind englisch, manche Einträge tun ohne die Werkzeuge der Entwickler nichts, und Unlock All ändert deinen Spielstand wie das Spielen.",
       },
       .done_title = "Die Bühne gehört dir!",
-      .done_text = "Das Spiel wurde installiert. Leg gleich los oder sieh dir zuerst die Video-, Grafik- und "
+      .done_text = "Das Spiel wurde installiert. Leg gleich los oder sieh dir zuerst die Anzeige-, Grafik- und "
                    "Instrumenteinstellungen an; du kannst sie jederzeit im Launcher ändern.",
       .dlc_where = "Das Spiel zeigt die Songs in der Songliste des Schnellspiels.",
       .extracting_title = "Die Bühne wird gestimmt",
@@ -99,7 +99,7 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "Ajoute l'entrée « (debug menu) » au menu principal et l'entrée Debug Menu au menu pause : le menu des développeurs du jeu (Unlock All, Skip Into Song, Change Venue, Select Slomo, Show Song Time, Toggle GPU Time, ...). Ses textes sont en anglais, certaines entrées ne font rien sans les outils des développeurs, et Unlock All modifie votre sauvegarde comme le jeu.",
       },
       .done_title = "La scène est à vous !",
-      .done_text = "Le jeu a été installé. Allez jouer tout de suite, ou vérifiez d'abord les réglages vidéo, "
+      .done_text = "Le jeu a été installé. Allez jouer tout de suite, ou vérifiez d'abord les réglages d'affichage, "
                    "graphiques et de vos instruments ; vous pourrez toujours les changer dans le launcher.",
       .dlc_where = "Le jeu affiche les chansons dans la liste de la Partie rapide.",
       .extracting_title = "On accorde la scène",
@@ -133,7 +133,7 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "Añade la opción «(debug menu)» al menú principal y Debug Menu al de pausa: el menú que usaban los desarrolladores del juego (Unlock All, Skip Into Song, Change Venue, Select Slomo, Show Song Time, Toggle GPU Time, ...). Sus textos están en inglés, algunas opciones no hacen nada sin las herramientas de los desarrolladores, y Unlock All cambia tu partida guardada como jugar.",
       },
       .done_title = "¡El escenario es tuyo!",
-      .done_text = "El juego se instaló correctamente. Puedes salir a tocar ya o revisar primero los ajustes de video, "
+      .done_text = "El juego se instaló correctamente. Puedes salir a tocar ya o revisar primero los ajustes de pantalla, "
                    "gráficos y tus instrumentos; siempre podrás cambiarlos desde el launcher.",
       .dlc_where = "El juego muestra las canciones en la lista de canciones de Partida rápida.",
       .extracting_title = "Afinando el escenario",
@@ -166,7 +166,7 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "Aggiunge la voce «(debug menu)» al menu principale e Debug Menu al menu di pausa: il menu degli sviluppatori del gioco (Unlock All, Skip Into Song, Change Venue, Select Slomo, Show Song Time, Toggle GPU Time, ...). I suoi testi sono in inglese, alcune voci non fanno nulla senza gli strumenti degli sviluppatori, e Unlock All cambia il tuo salvataggio come giocare.",
       },
       .done_title = "Il palco è tuo!",
-      .done_text = "Il gioco è stato installato. Vai a suonare subito o controlla prima le impostazioni video, grafiche e "
+      .done_text = "Il gioco è stato installato. Vai a suonare subito o controlla prima le impostazioni dello schermo, grafiche e "
                    "dei tuoi strumenti; potrai sempre cambiarle nel launcher.",
       .dlc_where = "Il gioco mostra i brani nella scaletta di Partita veloce.",
       .extracting_title = "Accordiamo il palco",

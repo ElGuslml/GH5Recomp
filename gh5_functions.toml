@@ -459,3 +459,49 @@ registers = ["r1", "r3", "r4"]
 address = 0x823CB468   # stw r7,8(r11) (sub_823CB428, an effect taken from the pool: r7 = the effects taken now)
 name = "GH5StarPowerPoolHook"
 registers = ["r7"]
+
+# The launcher's Mods (src/mods.cpp, src/highway_effects.cpp, src/highway_images.cpp), ported from GH Warriors of Rock
+# (its ghwor_functions.toml). Each site was found by matching that game's functions with this game's
+# (the C function table for script functions, then the instructions side by side). The script interpreter's hooks the
+# mods also use (GH5ScriptEvalEnterHook / LeaveHook, GH5GlobalResolveHook) are already in gh5_functions.toml.
+
+# The highway's opacity: the cut-out of the venue under the highway left out (src/mods.cpp).
+[[midasm_hook]]
+address = 0x825A6054   # addi r1,r1,128 (sub_825A5F98, a window element made: after viewportrenderpre was read into +604)
+name = "GH5HighwayPrepassHook"
+registers = ["r30"]
+# The highway's picture changed at each song's start (src/highway_images.cpp).
+[[midasm_hook]]
+address = 0x821D83F8   # mflr r12 (entry of sub_821D83F8, GeneratePosTable, the C function table's entry 0x82B0C74C: a highway made)
+name = "GH5HighwaySongHook"
+# The highway's Star Power, band moment and revival effects at the highway's scale (src/highway_effects.cpp).
+[[midasm_hook]]
+address = 0x823E41A8   # mflr r12 (entry of sub_823E41A8, CreateScreenElement, table entry 0x82B0B420: r3 = its params)
+name = "GH5HighwayEffectCreateHook"
+registers = ["r3"]
+[[midasm_hook]]
+address = 0x823EA274   # lwz r11,0(r31) (sub_823EA198, se_setprops: before this->vtable[+8](this, params); r31 = the element, r30 = the params; a branch target)
+name = "GH5HighwayEffectPropsHook"
+registers = ["r31", "r30"]
+[[midasm_hook]]
+address = 0x823E3D80   # mflr r12 (entry of sub_823E3D80, DestroyScreenElement, table entry 0x82B0B42C: r3 = its params)
+name = "GH5HighwayEffectDestroyHook"
+registers = ["r3"]
+# The whammy bar's bend of a held sustain (src/mods.cpp).
+[[midasm_hook]]
+address = 0x821E9008   # bl 0x82166480 (sub_821E8DE0: the local player's whammy bend, f1)
+name = "GH5WhammySoundHook"
+registers = ["f1"]
+# The instrument's volume on a miss (src/mods.cpp).
+[[midasm_hook]]
+address = 0x82162F20   # mflr r12 (entry of sub_82162F20: r3 = the song player's stream state 0x82CC84C0 + 1564, r4 = player - 1, r5 = flag)
+name = "GH5MissVolumeHook"
+registers = ["r3", "r4", "r5"]
+[[midasm_hook]]
+address = 0x82163008   # mr r6,r30 (one stream, before bl 0x82168F30; the stream state in r29 here, a branch target)
+name = "GH5MissVolumeSingleHook"
+registers = ["r29", "f1", "f31"]
+[[midasm_hook]]
+address = 0x82163244   # lis r9,-32256 (several streams, before f1 is stored at +12 of [r31+16]; the stream state in r29, a branch target)
+name = "GH5MissVolumeMultiHook"
+registers = ["r29", "f1", "f31"]

@@ -108,6 +108,15 @@ audio_keep_time = true
 # shared output takes 77 ms (measured in GH Metallica). Without it these do nothing.
 audio_wasapi_exclusive_buffer_ms = 10
 audio_wasapi_exclusive_queue = 2
+# The game is told the speakers it plays on (the SDK's XAudioGetSpeakerConfig, its change 121): Dolby Digital 5.1 only
+# with audio_channels = "surround", or "auto" on a device of more than two channels; two speakers with "stereo", "mono"
+# or "auto" on a stereo device, as a console without Dolby. GH Warriors of Rock, the same engine, mixes the same six
+# channels either way (measured there: its centre and LFE empty, its rears a third of its fronts, whatever it is told),
+# so the sound does not change; Dolby Digital adds -30 ms to the notes' and the input's timing (the scripts'
+# default_lag_settings_dolbydigital, the same as GH WoR's), which gh5_dolby_timing (src/mods.cpp, on) keeps whatever it
+# is told: no one calibrates again. GH5 Launcher's Channels row (Automatic, 5.1, Stereo, Mono) writes audio_channels.
+# false = always Dolby Digital, as before.
+audio_speaker_config_from_output = true
 # V-Sync (GH5 Launcher's row writes both): NativeXRenderer presents with FIFO, each frame shown once and never
 # torn, and the game's vertical blank follows the monitor's where the frame rate is its refresh rate or a whole
 # fraction of it, so the game never runs ahead of the display. Measured in GH Metallica at 160 FPS on a 160 Hz display:
@@ -233,6 +242,40 @@ gh5_skip_intro = false
 # World Tour's send, 0) and gh5_star_power_reverb_multi_preset (true: World Tour's settings for several players for
 # one player too) can be added here to tune it.
 gh5_star_power_reverb = false
+# The launcher's Mods (src/mods.cpp), changes of the game's own script data when it starts. The note highway's size
+# with one player in percent (the launcher offers 80-120; from the strike line, the gems, sidebars and meters with it);
+# its length in time in percent (100, 125, 150, 170: the notes seen that much earlier, the console's highway continued
+# in its own perspective, at the same speed at the strike line, for every player); its perspective in percent of the
+# console's (25-150: flatter or steeper); its look, "original" or "dark" (the community's black highway). 100, 100,
+# 100 and "original" = as on the console.
+gh5_highway_scale = 100
+gh5_highway_length = 100
+gh5_highway_perspective = 100
+gh5_highway_style = "original"
+# The whammy bar's bend of a held sustain (true, as on the console; false keeps the pitch, the bar still wobbles the
+# note and fills Star Power), and how much of your instrument's track stays on a miss or a strum without a note, in
+# percent (0, as on the console: muted until the next hit; 100 = never muted; guitar and bass; not in the
+# single-stream songs). src/mods.cpp.
+gh5_whammy_sound = true
+gh5_miss_lower = true
+gh5_miss_volume = 0
+# The note highway's opacity in percent: below 100 the venue shows through it (src/mods.cpp). 100 = as on the console.
+gh5_highway_opacity = 100
+# Images that replace the game's textures (NativeXRenderer's D176): a folder next to the executable, each image named
+# by the texture's hash (16 hexadecimal digits, then anything; .png, .jpg or .jpeg; subfolders too); the note highway's
+# is 5309C5000CB0C026 (computed from the disc; native_x_renderer_texture_log = true logs every texture's hash as it
+# loads).
+native_x_renderer_texture_replacements = "textures"
+# The note highway's picture from a folder (src/highway_images.cpp; the launcher's Mods > Highway gallery writes them):
+# the folder, the picture (a file of it, "<random>" for a random one at each song, empty for the game's own), where a
+# random one comes from ("all" or "favorites"), the favorites (names separated by |), and how bright pictures are
+# darkened toward black for all ("off", "auto" or a percent) and for some (name:value separated by |).
+gh5_highway_folder = ""
+gh5_highway_image = ""
+gh5_highway_random_from = "all"
+gh5_highway_favorites = ""
+gh5_highway_dim = "off"
+gh5_highway_image_dims = ""
 # The mouse cursor hidden over the game after cursor_auto_hide_ms without moving it (shown again when it moves, while
 # another window has the focus, and over the SDK's overlays). false = always shown.
 cursor_auto_hide = true

@@ -70,14 +70,18 @@ set(GH5_SOURCES
     src/fence_stamps.cpp
     src/fmod_mix.cpp
     src/framerate.cpp
+    src/highway_effects.cpp
+    src/highway_images.cpp
     src/intro.cpp
     src/keyboard.cpp
     src/main.cpp
+    src/mods.cpp
     src/native_x_renderer_gh5.cpp
     src/options.cpp
     src/players.cpp
     src/quit_prompt.cpp
     src/screen_fx.cpp
+    src/script_globals.cpp
     src/skinning.cpp
     src/split_render.cpp
     src/star_power_reverb.cpp

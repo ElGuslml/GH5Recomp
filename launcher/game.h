@@ -98,6 +98,10 @@ inline constexpr bool kHasDlaa = false;
 // Turned on once the log shows NativeXRenderer finding the game's shadow maps ("shadow map: ...") with
 // native_x_renderer_shadow_scale = 4, and their image is right.
 inline constexpr bool kShadowQuality = kHasNativeXRenderer && true;
+// Settings > Audio's Channels row with 5.1 (RecompLauncher 3.31; src/startup.cpp's audio_speaker_config_from_output):
+// the game told its speakers, Dolby Digital only with 5.1 (Automatic on a surround device); its timing kept the same
+// (src/mods.cpp's gh5_dolby_timing), as GH Warriors of Rock.
+inline constexpr bool kSpeakerChoice = true;
 
 // The Graphics page's frame rate row: kFrameRateCvar's choices (game_types.h's FrameRate) and the value without the
 // key. Here src/framerate.cpp's gh5_frame_rate, the frame rate itself: 60 as on the console, above it the emulated
@@ -150,7 +154,7 @@ inline constexpr std::array<Language, 5> kLanguages{{
 // Settings > Game, off as on the console (GH
 // Metallica's, docs/fixes-from-gh-metallica.md): the boot's intro video ended once the game has loaded
 // (src/intro.cpp) and the game's debug menu (src/debug_menu.cpp).
-inline constexpr std::array<Toggle, 8> kToggles{{
+inline constexpr std::array<Toggle, 11> kToggles{{
     {"gh5_fx_bloom", true, ToggleGroup::kScreenEffects},
     {"gh5_fx_depth_of_field", true, ToggleGroup::kScreenEffects},
     {"gh5_fx_color", true, ToggleGroup::kScreenEffects},
@@ -159,15 +163,63 @@ inline constexpr std::array<Toggle, 8> kToggles{{
     {"gh5_scene_every_frame", false, ToggleGroup::kSmoothness},
     {"gh5_skip_intro", false, ToggleGroup::kStart},
     {"gh5_debug_menu", false, ToggleGroup::kModsTools},
+    {"gh5_whammy_sound", true, ToggleGroup::kModsSound},
+    {"gh5_star_power_reverb", false, ToggleGroup::kModsSound},
+    {"gh5_miss_lower", true, ToggleGroup::kModsSound},
 }};
 
-// Rows of the game's own with several values (game_types.h's Choice, launcher 3.29): none yet.
-inline constexpr std::array<Choice, 0> kChoices{};
+// Rows of the game's own with several values (game_types.h's Choice, launcher 3.29), GH Warriors of Rock's: Mods >
+// Highway, the note highway's size with one player (80-120 % by 5), its length in time (the console's highway
+// continued in its own perspective, the notes seen earlier at the same speed: 100, 125, 150, 170 %), its perspective
+// (25-150 % of the console's compression by 25) and its look (the original, or the community's black highway), each a
+// change of the game's script data when it starts (src/mods.cpp); GH5's highway_guitar1, highway_scale_chart and
+// GeneratePosTable are GH Warriors of Rock's values. Mods > Sound: how much of the player's instrument track stays on a
+// miss (0-100 % by 10; 0 = muted as on the console). Their titles, hints, help and the styles' names are game.cpp's.
+inline constexpr const char* kHighwayScales[] = {"80", "85", "90", "95", "100", "105", "110", "115", "120"};
+inline constexpr const char* kHighwayLengths[] = {"100", "125", "150", "170"};
+inline constexpr const char* kHighwayPerspectives[] = {"25", "50", "75", "100", "125", "150"};
+inline constexpr const char* kHighwayStyles[] = {"original", "dark"};
+inline constexpr const char* kHighwayOpacities[] = {"100", "90", "80", "70", "60", "50", "40", "30"};
+inline constexpr const char* kMissVolumes[] = {"0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100"};
+inline constexpr std::array<Choice, 6> kChoices{{
+    {"gh5_highway_scale", kHighwayScales, "100", ToggleGroup::kModsHighway, " %"},
+    {"gh5_highway_length", kHighwayLengths, "100", ToggleGroup::kModsHighway, " %"},
+    {"gh5_highway_perspective", kHighwayPerspectives, "100", ToggleGroup::kModsHighway, " %"},
+    {"gh5_highway_style", kHighwayStyles, "original", ToggleGroup::kModsHighwayLook, "", true},
+    {"gh5_highway_opacity", kHighwayOpacities, "100", ToggleGroup::kModsHighwayLook, " %"},
+    {"gh5_miss_volume", kMissVolumes, "0", ToggleGroup::kModsSound, " %", false, "gh5_miss_lower"},
+}};
 
-// Launcher 3.30: the Mods tab's Highway section (gallery and preview): not yet in this game.
-inline constexpr bool kHighwayPreview = false;
-inline constexpr HighwayGallery kHighwayGallery{};
-inline constexpr HighwayAssets kHighwayAssets{};
+// Launcher 3.30: the Mods tab's Highway section, its gallery of the player's pictures (src/highway_images.cpp reads
+// the cvars) and its preview, drawn from the installed game's own textures. GH5 keeps the gems' parts in
+// data/compressed/ZONES/z_in_game.pak.xen's pak\highway\basic_gems\basic_gems.tex (GH Warriors of Rock's keys), but
+// its highway, Highway_Judy_fm_01, in data/compressed/ZONES/global.pak.xen's models/guitarists/judy_1_highway.tex
+// (launcher 3.31.1's highway_pak); its sustain is WhammyBAR_Grey_Cthru (WhammyBAR_Grey_wide is not in GH5, and its
+// normal sustain texture is empty in the dictionary).
+inline constexpr bool kHighwayPreview = true;
+inline constexpr HighwayGallery kHighwayGallery{
+    "gh5_highway_folder",     "gh5_highway_image",       "gh5_highway_random_from", "gh5_highway_favorites",
+    "gh5_highway_dim",        "gh5_highway_image_dims",  L"Highways",
+    "gh5_highway_scale",      "gh5_highway_length",      "gh5_highway_perspective", "gh5_highway_opacity",
+    "gh5_highway_style",      "dark",
+};
+inline constexpr HighwayAssets kHighwayAssets{
+    L"data/compressed/ZONES/z_in_game.pak.xen",
+    0xF3FB8221,  // pak\highway\basic_gems\basic_gems.tex
+    0xA177C495,  // Highway_Judy_fm_01 (in highway_pak)
+    0x388DD606,  // sidebar02
+    0x2ED9AC77,  // string
+    0x12871CA5,  // FretBar_Med01_DNC
+    0x452CB6D1,  // button_grey_Collar01 (the strike line's rings)
+    0xCFA3D7FA,  // button_grey_Base01 (a gem's rim)
+    0x15517A60,  // Button_Grey_Gradient01 (a gem's colored body)
+    0xA8561777,  // Button_grey_Cap01 (a gem's cap)
+    0xF03CA939,  // WhammyBAR_Grey_Cthru (a sustain)
+    // guitar_tweaks.qb's highway_guitar1 and highway_scale_chart's first row (src/mods.cpp): GH Warriors of Rock's.
+    655.0f, 350.0f, 160.0f, 512.0f, 1.00108, 1.00125, 1024, 1.5f, 50.0f, 1.5f,
+    L"data/compressed/ZONES/global.pak.xen",
+    0xFE28C3A2,  // models/guitarists/judy_1_highway.tex
+};
 
 // --- Downloadable content ---
 

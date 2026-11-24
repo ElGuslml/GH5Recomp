@@ -88,8 +88,11 @@ when you press PLAY.
     gives you no Star Power (a Wii or PS3 guitar): press Assign, tilt the neck up as for Star Power and hold it,
     then go back to your playing position.
   - Keyboard (experimental): turn on "Play with keyboard and mouse" to play with the keyboard as a guitar
-    (frets D F J K L, strum with the Up and Down arrows, Star Power with Space, Start with Enter), and change
-    any key. "Strum when a fret is pressed" makes each fret strum as you press it, in songs. Shift, Ctrl
+    (frets D F J K L, Star Power with Space, Start with Enter), and change any key. Play style:
+    "Controller · GH III" (the default) plays songs as in Guitar Hero III: no strum (pressing a fret key plays
+    its note), the open note (bass) on 3, the whammy bar on the Right arrow; the arrows do nothing in a song.
+    "Guitar · Xbox 360" strums with the Up and Down arrows, and "Strum when a fret is pressed" makes each
+    fret strum as you press it, in songs. Shift, Ctrl
     and Alt can be keys of their own (press and release one alone): each side is a separate key, so Left
     Alt can be Star Power. F1 to F12 can be assigned too: a key on a control only presses that control.
     Instrument: Drums plays the keyboard as a drum kit with keys of its own (5 lanes: D red, F yellow,
@@ -119,7 +122,11 @@ when you press PLAY.
     far end in its own perspective, and the notes reach the strike line at the same speed; the timing to
     hit them does not change; every player gets it; if it does not fit the screen it is shortened.
     Highway perspective (100 % by default): 25 to 150 %, flatter (as seen from higher, the far notes
-    larger, the longer highway taller) or steeper. Highway style (Original by
+    larger, the longer highway taller) or steeper. The notes take the same time to cross the highway, so
+    below 100 % they reach the strike line slower (about a fifth slower at 75 %), above it faster. Notes
+    at the console's speed (off by default, under the perspective): they reach the strike line as fast
+    as at 100 % whatever the perspective, so below 100 % each note shows for less time (1.18 s on Expert
+    at 75 % instead of 1.5); the game's Hyperspeed works on top of it. Highway style (Original by
     default): Dark is the community's black highway. Highway opacity (100 % by default): below it the
     venue shows through the highway (the notes and lines stay solid).
   - Sound: Whammy sound effect (on by default): off, the
@@ -147,9 +154,9 @@ when you press PLAY.
 - Settings:
   - Display: the monitor, fullscreen, borderless or window, the resolution, the image format (fill a screen
     wider than 16:9, where the stage is seen wider while the note highway, the HUD and the menus stay 16:9
-    in the center, or keep 16:9 with bars). Smoothness: the frame rate, 60 FPS (original), and 120, 144, 160,
-    165 or 240 FPS (experimental; the songs keep their speed and stay in sync at every frame rate), and 300, 360,
-    480 or Unlimited (experimental, with V-Sync off: with V-Sync on the game runs at your monitor's rate), V-Sync
+    in the center, or keep 16:9 with bars). Smoothness: the frame rate, 60 FPS (original), and 72, 75, 90, 100, 120,
+    144, 160, 165 or 240 FPS (experimental; the songs keep their speed and stay in sync at every frame rate), and 300,
+    360, 480 or Unlimited (experimental, with V-Sync off: with V-Sync on the game runs at your monitor's rate), V-Sync
     (on by default: no tearing, and no extra delay; leave it on with a G-Sync or FreeSync monitor too), and
     Venue at the full frame rate (off by default): the game draws its venue and its band in turns, each at half
     the frame rate (30 times a second on the console), while the note highway uses the full rate; on, the whole

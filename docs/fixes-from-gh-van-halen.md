@@ -115,8 +115,8 @@ Moved on 2026-11-05 to GH Metallica's versions: SDK `0a7c86c` (changes 69-72, on
 
 ## Frame rates above 60
 
-**Experimental.** `gh5_frame_rate` (60, 120, 144, 160, 165, 240; the launcher's frame rate row) sets the vertical
-blank's rate; the game's clock is real time. `src/framerate.cpp` (`gh5_frame_rate_fix`, on) keeps at the console's
+**Experimental.** `gh5_frame_rate` (60, 72, 75, 90, 100, 120, 144, 160, 165, 240; the launcher's frame rate row)
+sets the vertical blank's rate; the game's clock is real time. `src/framerate.cpp` (`gh5_frame_rate_fix`, on) keeps at the console's
 speed what counts frames: the vblank clocks (`sub_82637918`), the scripts' `Wait N gameframes` (`sub_8257E498`,
 `sub_8257E448`, `sub_8257E798`; also GH5's script function Yield, which waits a game frame), the button presses
 scripts poll (`sub_824B58C8`, ControllerMake `sub_824C06B0`), the whammy on a sustain (`sub_821E6DB0`,

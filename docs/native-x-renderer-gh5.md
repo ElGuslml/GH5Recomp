@@ -133,3 +133,10 @@ the driver new shaders to compile, and its pipeline cache kept a copy of each pi
 serves every scale. The first start after the change compiles every pipeline once. A draw computes what it computed
 (GH Metallica's and the other games' stored translations checked, NativeXRenderer's decisions.md D128).
 **Off:** `--native_x_renderer_scale_in_constants=false` writes the scale into the shaders as before.
+
+## V-Sync in a window (NativeXRenderer D182, 2026-11-23)
+
+As GH Warriors of Rock (its `docs/native-x-renderer-ghwor.md`): `native_x_renderer_window_present_mode = "mailbox"`
+in `src/startup.cpp`. With V-Sync, a window that does not cover its display presents with MAILBOX; borderless and full
+screen keep FIFO. Measured in GH WoR only. **Off:** `native_x_renderer_window_present_mode = "vsync"` (FIFO in a window
+too).

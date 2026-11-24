@@ -1,0 +1,57 @@
+# A song's music started with its notes (src/song_sync.cpp, gh5_song_start_sync, on; docs/song-sync.md). GH Warriors of
+# Rock's hooks/song_sync.toml on GH5's script functions (the C function table at 0x82B09200): SongLoad and SongSeek tell
+# when a stream is loaded and waits to be played, and from where; SongPlay, SongStop, SongUnload, SongAudioPlayerDeInit
+# and SongUnPause end the wait. Rule A: a reset of the song's clock past that start while the stream waits sets the
+# clock 100 ms before it. Rule B: at the play, a clock more than 30 ms past the start is set to it. Each song's start is
+# logged. Each site was compared with GH Warriors of Rock's (show.py): GH5's song player functions differ in their
+# arguments' handling, the calls marked are the same.
+[[midasm_hook]]
+address = 0x821643D8   # clrlwi r9,r3,24 (SongLoad, sub_82164330: after bl 0x82166058, the load; r3 = loaded)
+name = "GH5SongLoadHook"
+registers = ["r3"]
+[[midasm_hook]]
+address = 0x82164734   # bl 0x821673F0 (SongSeek, sub_82164688: the seek; r4 = the time in ms)
+name = "GH5SongSeekHook"
+registers = ["r4"]
+[[midasm_hook]]
+address = 0x823EAFAC   # addi r31,r10,3576 (ResetSongTimer, sub_823EAF70: f0 = the new time in s, before its two stores)
+name = "GH5SongResetHook"
+registers = ["f0"]
+[[midasm_hook]]
+address = 0x82163A48   # mflr r12 (entry of SongPlay, sub_82163A48)
+name = "GH5SongPlayHook"
+# The three below also end the count of a song's frames by the blanks they took (hooks/perf_measure.toml's measure).
+[[midasm_hook]]
+address = 0x82163A90   # mflr r12 (entry of SongStop, sub_82163A90)
+name = "GH5SongStopHook"
+[[midasm_hook]]
+address = 0x82164418   # mflr r12 (entry of SongUnload, sub_82164418)
+name = "GH5SongUnloadHook"
+[[midasm_hook]]
+address = 0x821645E8   # mflr r12 (entry of SongAudioPlayerDeInit, sub_821645E8)
+name = "GH5SongDeInitHook"
+[[midasm_hook]]
+address = 0x82163BA4   # bl 0x821672D0 (SongUnPause, sub_82163B30: the stream unpaused)
+name = "GH5SongUnPauseHook"
+
+# The song's clocks from the vertical blanks' own times (src/song_clock.cpp, gh5_song_clock_exact, on;
+# docs/song-clock.md): the vblank callback's hook keeps each blank's time by its count; each clock's update adds the time
+# between the blanks it counts in place of the game's sum of the last intervals (which takes the ring's oldest ones and
+# walks its ring of 10 at a hitch). GH5 has two clocks (GH Warriors of Rock one). Each song's clock report is logged at
+# its end.
+[[midasm_hook]]
+address = 0x823B03AC   # addi r3,r8,1 (sub_823B0378, the vblank callback: the blank's time r9 stored at +576 of r11, before the count)
+name = "GH5SongClockBlankHook"
+registers = ["r9", "r11"]
+[[midasm_hook]]
+address = 0x823EB808   # frsp f12,f1 (sub_823EB788, the clock's update: f1 = sub_823B0668's sum; r30 = the blank count)
+name = "GH5SongClockStepHook"
+registers = ["f1", "r30", "r31"]
+[[midasm_hook]]
+address = 0x823EBA48   # frsp f12,f1 (sub_823EB8D8, the second clock's update, the scale-below-1 path: f1 = the sum)
+name = "GH5SongClock2StepHook"
+registers = ["f1", "r28", "r30", "r31"]
+[[midasm_hook]]
+address = 0x823EBA98   # lfd f0,0(r31) (sub_823EB8D8: f1 = the sum of its usual path)
+name = "GH5SongClock2StepHook"
+registers = ["f1", "r28", "r30", "r31"]

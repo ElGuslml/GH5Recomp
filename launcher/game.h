@@ -110,7 +110,14 @@ inline constexpr const char* kFrameRateCvar = GAME_FRAME_RATE_CVAR;
 inline constexpr bool kFrameRateIsBool = false;
 // Above 240 (RecompLauncher 3.31, with V-Sync off; Gustavo, 2026-11-18, as GH Warriors of Rock): 300, 360, 480 and
 // Unlimited (1000 Hz, the SDK's ceiling), experimental: the rings of src/framerate.cpp hold a 60th of a second at 1000.
-inline constexpr std::array<FrameRate, 10> kFrameRates{{{60, 60},
+// Between 60 and 120 (GH Warriors of Rock's local_docs/73, 2.3): 72, 75, 90 and 100, for a PC that cannot hold 120. With
+// V-Sync they are even on a monitor whose rate they fit (72 on 144 Hz, 75 on 150, 100 on 200), with V-Sync off or a
+// variable refresh rate.
+inline constexpr std::array<FrameRate, 14> kFrameRates{{{60, 60},
+                                                        {72, 72},
+                                                        {75, 75},
+                                                        {90, 90},
+                                                        {100, 100},
                                                         {120, 120},
                                                         {144, 144},
                                                         {160, 160},
@@ -153,8 +160,10 @@ inline constexpr std::array<Language, 5> kLanguages{{
 // on the console (the engine's split render mode off, src/split_render.cpp, as GH Warriors of Rock's). Then two in
 // Settings > Game, off as on the console (GH
 // Metallica's, docs/fixes-from-gh-metallica.md): the boot's intro video ended once the game has loaded
-// (src/intro.cpp) and the game's debug menu (src/debug_menu.cpp).
-inline constexpr std::array<Toggle, 11> kToggles{{
+// (src/intro.cpp) and the game's debug menu (src/debug_menu.cpp). Launcher 3.32 (GH Warriors of Rock's): Mods >
+// Highway's notes at the console's speed whatever the perspective (off as on the console; under the perspective's row,
+// locked at 100 %; src/mods.cpp).
+inline constexpr std::array<Toggle, 12> kToggles{{
     {"gh5_fx_bloom", true, ToggleGroup::kScreenEffects},
     {"gh5_fx_depth_of_field", true, ToggleGroup::kScreenEffects},
     {"gh5_fx_color", true, ToggleGroup::kScreenEffects},
@@ -166,6 +175,7 @@ inline constexpr std::array<Toggle, 11> kToggles{{
     {"gh5_whammy_sound", true, ToggleGroup::kModsSound},
     {"gh5_star_power_reverb", false, ToggleGroup::kModsSound},
     {"gh5_miss_lower", true, ToggleGroup::kModsSound},
+    {"gh5_highway_keep_speed", false, ToggleGroup::kModsHighway, "gh5_highway_perspective"},
 }};
 
 // Rows of the game's own with several values (game_types.h's Choice, launcher 3.29), GH Warriors of Rock's: Mods >
@@ -201,7 +211,7 @@ inline constexpr HighwayGallery kHighwayGallery{
     "gh5_highway_folder",     "gh5_highway_image",       "gh5_highway_random_from", "gh5_highway_favorites",
     "gh5_highway_dim",        "gh5_highway_image_dims",  L"Highways",
     "gh5_highway_scale",      "gh5_highway_length",      "gh5_highway_perspective", "gh5_highway_opacity",
-    "gh5_highway_style",      "dark",
+    "gh5_highway_style",      "dark",                    "gh5_highway_keep_speed",
 };
 inline constexpr HighwayAssets kHighwayAssets{
     L"data/compressed/ZONES/z_in_game.pak.xen",

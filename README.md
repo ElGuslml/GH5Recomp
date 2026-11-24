@@ -94,8 +94,9 @@ From then on, the launcher keeps itself up to date: when a new version comes out
   buttons in a song are its own (the launcher's **In a song**: each fret, the open note, Star Power and the whammy bar on
   up to two buttons), apart from the menus' (**Navigation**). It is the default **Play style**; each controller's page
   in the launcher's Controls tab can choose **Guitar · Xbox 360** instead, for a guitar that Windows sees as a
-  controller (through an adapter), while another controller keeps this one. On the keyboard, each fret can strum
-  as you press it (the Keyboard page's switch).
+  controller (through an adapter), while another controller keeps this one. **The keyboard plays the same way** by
+  default (the fret keys D, F, J, K and L, the open note on 3, Star Power on Space, the whammy bar on the right arrow);
+  its Keyboard page's **Play style** can choose **Guitar · Xbox 360** instead (strum with the arrows).
 - 🎸 **Xbox One guitars:** the PDP Riffmaster and other Xbox One or Xbox Series guitars play as an Xbox 360 guitar,
   their tilt included, through Microsoft GameInput (the setup and the launcher's Controls tab offer to install it).
 - 🎤 **Sing (experimental):** any microphone on your PC is the game's USB microphone. Choose it in the launcher, and
@@ -107,7 +108,7 @@ From then on, the launcher keeps itself up to date: when a new version comes out
 - 🔍 **Upscaling:** AMD FSR 1 or NVIDIA NIS, on any graphics card, with their quality and sharpness: for a 4K screen
   or a slower graphics card ([how they compare](https://github.com/ElGuslml/GHMetalRecomp/blob/main/docs/scaling.md)).
 - 🌑 **Sharper shadows:** the **Shadow quality** row draws the shadows at up to four times the original resolution.
-- ⚡ **High frame rates:** 60 FPS as on the console, or 120, 144, 160, 165 or 240 FPS if your monitor supports it
+- ⚡ **High frame rates:** 60 FPS as on the console, or 72, 75, 90, 100, 120, 144, 160, 165 or 240 FPS if your monitor supports it
   (experimental), and 300, 360, 480 or Unlimited with V-Sync off (experimental: with V-Sync on the game runs at your
   monitor's rate). The songs keep their speed and stay in sync. V-Sync is on by default (no tearing, the game in step
   with your monitor, without V-Sync's usual delay); leave it on with a G-Sync or FreeSync monitor too. Star Power
@@ -127,8 +128,8 @@ From then on, the launcher keeps itself up to date: when a new version comes out
   gallery of your folder with favorites, one picture or a random one at each song, bright ones darkened so that the
   notes stand out, all previewed with the game's own highway (read from your game files). The highway smaller or
   larger when you play alone (80-120 %), longer so that the notes show up earlier at the same speed, as in Clone Hero
-  (up to 170 %, the highway continued in its own perspective), its perspective flatter or steeper, the community's
-  black highway, and see-through. In **Mods → Sound**, the whammy bar's sound effect, and how much of your instrument
+  (up to 170 %, the highway continued in its own perspective), its perspective flatter or steeper (with the notes at
+  the console's speed if you want), the community's black highway, and see-through. In **Mods → Sound**, the whammy bar's sound effect, and how much of your instrument
   stays when you miss a note (0-100 %; the console mutes it). All as on the console by default.
 - 🖼️ **Custom textures:** put an image named by a texture's hash in the `textures` folder next to the game and it
   replaces that texture (with NativeXRenderer); the note highway's is `5309C5000CB0C026`. The game can log and dump
@@ -177,7 +178,7 @@ Everything is set up from **GH5 Launcher**, with the mouse, the keyboard or a co
 | ▶️ **Play** | Start the game, see your settings and achievements at a glance, and a new version when there is one. |
 | 🎶 **DLC** | Your DLC folder: the game reads your packages from there, nothing copied. They are grouped by the game they were made for, each with its switch. |
 | 🏆 **Achievements** | All 49 achievements, the ones you have unlocked and when. |
-| 🧩 **Mods** | **Highway:** your pictures for the note highway (a gallery with favorites, one picture or a random one at each song, bright ones darkened), previewed with the game's own highway; its scale with one player, its length (the notes seen earlier at the same speed), perspective, style (original or dark) and opacity. **Sound:** the whammy's sound effect, World Tour's Star Power sound, the instrument's volume on a miss. **Tools:** the game's own debug menu, the developer's keys. |
+| 🧩 **Mods** | **Highway:** your pictures for the note highway (a gallery with favorites, one picture or a random one at each song, bright ones darkened), previewed with the game's own highway; its scale with one player, its length (the notes seen earlier at the same speed), perspective (the notes at the console's speed with it, if you want), style (original or dark) and opacity. **Sound:** the whammy's sound effect, World Tour's Star Power sound, the instrument's volume on a miss. **Tools:** the game's own debug menu, the developer's keys. |
 | 🎮 **Controls** | Your guitars, controllers and keyboard: what each button or key does, each controller's play style (Guitar Hero III's layout or an Xbox 360 guitar's) and its buttons in a song, and which controller plays drums (five or four lanes) or sings. The keyboard as a guitar or a drum kit (experimental). Frets that strum as you press them on the keyboard. A whammy bar's and a tilt's assignment. Your microphone (experimental): device, gain and level. Microsoft GameInput for Xbox One guitars. |
 | ⚙️ **Settings** | **Display:** monitor, fullscreen or window, resolution, image format (fill a wide screen or keep 16:9), frame rate, V-Sync (on by default: no tearing, without V-Sync's usual delay; leave it on with a G-Sync or FreeSync monitor too), the venue at the full frame rate (the console draws it at half the rate of the note highway). **Graphics:** renderer, graphics card, upscaling (AMD FSR 1, NVIDIA NIS) with its quality and the internal resolution, antialiasing (SMAA or FXAA), sharpness, texture sharpness, shadow quality. **Effects:** the game's screen effects. **Audio:** output device, channels (Automatic, 5.1, Stereo, Mono; the notes' timing the same with each), volume (up to 200 %), mute in the background, Low latency audio. **Game:** the game's and the launcher's language, the intro video ended as soon as the game has loaded. **Updates:** your version, and new ones when they come out (the betas too, if you choose); Play shows a new one. |
 | 👤 **Profile** | Your picture at the top right: hours played, streaks, your week, your games and your favorite achievements. |

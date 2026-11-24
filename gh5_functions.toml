@@ -13,6 +13,9 @@
 setjmp_address = 0x82910F90
 longjmp_address = 0x82910C70
 
+# A feature's or a fix's hooks in a file of their own, as GH Warriors of Rock's (its docs/development.md).
+includes = ["hooks/song_sync.toml", "hooks/perf_measure.toml", "hooks/draw_stamps.toml"]
+
 # Codegen: the registers no call passes on are local variables of each function, not fields of the PPCContext, so
 # the compiler keeps them in host registers and the __savegprlr/__restgprlr helpers are elided, as in GH Van Halen,
 # KameoRecomp, GRAWRecomp and POTCAWERecomp. non_argument_as_local (r0, r2, r11, r12) stays off: the SEH funclets read
@@ -27,6 +30,18 @@ cr_as_local = true
 ctr_as_local = true
 xer_as_local = true
 reserved_as_local = true
+# The XDK's inline Interlocked operations disable one core's interrupts around their lwarx / stwcx. (mfmsr rX,
+# mtmsrd r13, ..., mtmsrd rX). By default the codegen turns the three into the SDK's process-wide recursive mutex; in
+# GH Warriors of Rock, the same engine, that took 10.7 % of a core at 60 FPS and 21.7 % at 120 on four cores, the job
+# workers a fifth of their time (its local_docs/72, Phase 1 step 1.1b; -7 to -8 % of the process's cores with this).
+# skip_msr emits nothing for them, so each site is the host's atomic operation alone. That is the console's meaning:
+# the pair stopped interrupts on one core, never the other cores, so the game's code never had these operations
+# excluded from each other, only each made atomic. recomp-tools' tools/codegen/msr_sites.py checks it by address after
+# every codegen: 224 sites in 129 functions here, each one reserved load and store with register arithmetic, compares
+# and branches, and mfmsr's register read by its restores only (two sites in sub_82725C80 are followed by mftb r9,
+# which writes r9 and does not read mfmsr's r8: the tool read it as a read until it decoded mftb). The SDK's own users
+# of the lock on guest words (critical sections, spin locks, SLists) use the host's atomics.
+skip_msr = true
 
 [functions]
 # The functions that call setjmp keep their registers in the context (share_registers): the host longjmp returns

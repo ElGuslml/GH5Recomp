@@ -64,8 +64,8 @@ bool PlaysGh3Layout(uint32_t port) {
   const bool gh3 = rex::input::PlaysGh3Layout(port);
   if (g_logged[port].exchange(gh3 ? 1 : 0) != (gh3 ? 1 : 0)) {
     REXLOG_INFO("[controller layout] port {}: {}", port,
-                gh3 ? "a controller on Guitar Hero III's layout, played by the game's controller code"
-                    : "a guitar (or the keyboard), played as one");
+                gh3 ? "a controller (or the keyboard) on Guitar Hero III's layout, played by the game's controller code"
+                    : "a guitar (or a controller or the keyboard as one), played as one");
   }
   return gh3;
 }

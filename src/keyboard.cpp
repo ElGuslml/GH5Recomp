@@ -43,4 +43,6 @@ namespace gh5 {
 
 void InitializeKeyboard() { rex::input::mnk::SetTapGate(InSong); }
 
+bool PlayingSong() { return InSong(); }
+
 }  // namespace gh5

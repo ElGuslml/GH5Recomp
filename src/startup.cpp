@@ -124,6 +124,14 @@ audio_speaker_config_from_output = true
 # frames). "immediate" and false = V-Sync off (tearing, or a G-Sync / FreeSync display following the game).
 native_x_renderer_present_mode = "vsync"
 vblank_follows_display = true
+# V-Sync in a window that does not cover its display (NativeXRenderer D182; GH Warriors of Rock's local_docs/74, 2.1b):
+# MAILBOX there, the compositor or a display plane showing one whole picture a refresh. Measured in GH WoR at 160 FPS
+# in a 1280x720 window on a display plane: every frame shown, the shown frames' 1 % low 158.3-158.7 FPS (FIFO
+# 151.6-158.6) and 2.6-3.1 ms from present to display (FIFO 2.4-6.2, by its phase). A composed window (Wallpaper Engine
+# animating the desktop behind it) had FIFO's second phase: frames held a refresh longer, a 1 % low of 56 FPS.
+# Borderless and full screen keep FIFO (MAILBOX there: 10.4 ms to the display against 4.0). "vsync" = FIFO in a window
+# too, as before.
+native_x_renderer_window_present_mode = "mailbox"
 # NativeXRenderer records its DiligentCore calls on a thread of their own while its renderer's thread prepares the next
 # commands (D154, D155), on as in GH Warriors of Rock (its Quest song with the venue every frame at 3440x1440: at 240
 # FPS every stretch at 230 or more, 225.7 without it; the renderer's thread at about half of the frame). With V-Sync,
@@ -149,6 +157,13 @@ gamepad_subtype = 6
 # Back, the whammy bar on either stick (src/controller_layout.cpp). "guitar": an Xbox 360 guitar's controls, frets on
 # A, B, Y, X and LB, strumming on the D-pad, the whammy bar on the right stick, the tilt on its Y, Star Power on Back.
 gamepad_guitar_layout = "gh3"
+# The keyboard playing guitar plays a song on the same layout (SDK change 125, keyboard_guitar_layout; GH5 Launcher's
+# Keyboard page, Play style): the game's controller code plays its fret keys (green, red, yellow, blue, orange on the
+# keys of A, B, Y, X and LB below; the open note on RB's), a fret key pressed plays, no strum: in a song the arrows (the
+# D-pad) do nothing and the strum switch (mnk_tap_target) does not act. Star Power on Back's keys, the whammy bar on
+# the right stick's key. The menus keep the keys as they are. "guitar": an Xbox 360 guitar's, as before (the arrows
+# strum).
+keyboard_guitar_layout = "gh3"
 # A PS3 Guitar Hero guitar (a CRKD guitar on its P3 setting too): yellow and blue, swapped on that protocol, put right,
 # and its whammy bar, which rests at the middle of its axis, at rest there.
 guitar_ps3_protocol = true
@@ -246,11 +261,13 @@ gh5_star_power_reverb = false
 # with one player in percent (the launcher offers 80-120; from the strike line, the gems, sidebars and meters with it);
 # its length in time in percent (100, 125, 150, 170: the notes seen that much earlier, the console's highway continued
 # in its own perspective, at the same speed at the strike line, for every player); its perspective in percent of the
-# console's (25-150: flatter or steeper); its look, "original" or "dark" (the community's black highway). 100, 100,
-# 100 and "original" = as on the console.
+# console's (25-150: flatter or steeper), and with gh5_highway_keep_speed the notes at the console's speed at the
+# strike line whatever the perspective (the times on the highway shorter below 100, longer above); its look, "original"
+# or "dark" (the community's black highway). 100, 100, 100, false and "original" = as on the console.
 gh5_highway_scale = 100
 gh5_highway_length = 100
 gh5_highway_perspective = 100
+gh5_highway_keep_speed = false
 gh5_highway_style = "original"
 # The whammy bar's bend of a held sustain (true, as on the console; false keeps the pitch, the bar still wobbles the
 # note and fills Star Power), and how much of your instrument's track stays on a miss or a strum without a note, in

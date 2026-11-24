@@ -16,6 +16,10 @@
 //
 // The waits of src/thread_waits.cpp follow the vblank's rate (VblankPeriod).
 
+#include "framerate.h"
+#include "keyboard.h"
+
+#include <native_x_renderer/native_x_renderer.h>
 #include <rex/cvar.h>
 #include <rex/logging.h>
 #include <rex/ppc/context.h>
@@ -30,10 +34,13 @@
 #include <mutex>
 #include <unordered_map>
 
+// src/song_sync.cpp's: begin_song_after_intro (below) runs every frame with it.
+REXCVAR_DECLARE(bool, gh5_song_start_sync);
+
 REXCVAR_DEFINE_INT32(gh5_frame_rate, 60, "GH5",
-                     "Frame rate: 60 as on the console, or 120, 144, 160, 165 or 240, or with V-Sync off 300, 360, "
-                     "480 or 1000 (experimental; the launcher's Unlimited): the emulated vertical blank runs "
-                     "at that rate (video_mode_refresh_rate, set at startup) and the game presents on every one; its "
+                     "Frame rate: 60 as on the console, or 72, 75, 90, 100, 120, 144, 160, 165 or 240, or with "
+                     "V-Sync off 300, 360, 480 or 1000 (experimental; the launcher's Unlimited): the emulated "
+                     "vertical blank runs at that rate (video_mode_refresh_rate, set at startup) and the game presents on every one; its "
                      "clock is real time, so it keeps its speed");
 
 REXCVAR_DEFINE_BOOL(gh5_frame_rate_fix, true, "GH5",
@@ -126,7 +133,89 @@ void GH5MainFrameHook() {
     g_average_frame.store(average > 0.0 ? average + 0.1 * (seconds - average) : seconds, std::memory_order_relaxed);
   }
   last = now;
+  // NativeXRenderer's summary line counts a song's frames apart (its D181): a player's log then measures the play.
+  native_x_renderer::SetMainActivity(gh5::PlayingSong());
 }
+
+// The frames of a song by the vertical blanks each took, for the log (GH Warriors of Rock's src/framerate.cpp): at a
+// fixed rate a frame that misses its blank waits a whole one more, so the frames that took two or more are the ones the
+// player saw twice. sub_8255ABE8, the render thread presenting a frame, waits for its blank (the present interval, 1
+// in this game) and then stores the blank count (sub_823B0608, the counter 0x82D7D530) at 0x82E80AF0; every call with
+// an interval reaches that store once, and the difference from the last frame's count is the blanks this frame took.
+// With an interval of 0 the game skips the store, and with the blank every millisecond (the launcher's Unlimited, or
+// the SDK's vsync off) a blank is no display refresh: nothing is counted then. A line every 3,000 of a song's frames
+// and one at its end (the music's stop).
+namespace {
+
+struct FrameBlanks {
+  uint64_t frames = 0;  // the song's frames counted
+  uint64_t two = 0;     // of them, those that took two blanks
+  uint64_t more = 0;    // three or more
+  uint64_t next_line = 3000;
+};
+std::mutex g_blanks_mutex;
+FrameBlanks g_blanks;
+uint64_t g_last_blank = 0;  // the last frame's count (only the render thread, the hook's caller)
+
+void LogFrameBlanks(const FrameBlanks& blanks, const char* when) {
+  const uint64_t missed = blanks.two + blanks.more;
+  REXLOG_INFO("[frames] {}: {} frames at {:.0f} Hz, {} took two vertical blanks and {} three or more ({:.3f} % two or "
+              "more)",
+              when, blanks.frames, VblankRate(), blanks.two, blanks.more,
+              blanks.frames ? 100.0 * double(missed) / double(blanks.frames) : 0.0);
+}
+
+}  // namespace
+
+// [[midasm_hook]] 0x8255AE50 (sub_8255ABE8: before "std r3,2800(r29)", r3 = the blank count when this frame is
+// presented). hooks/perf_measure.toml.
+void GH5FrameBlanksHook(PPCRegister& r3) {
+  const uint64_t blank = r3.u64;
+  const uint64_t last = g_last_blank;
+  g_last_blank = blank;
+  if (last == 0 || blank <= last || VblankRate() >= 1000.0 || !gh5::PlayingSong()) {
+    return;
+  }
+  const uint64_t took = blank - last;
+  FrameBlanks line;
+  bool log = false;
+  {
+    std::lock_guard lock(g_blanks_mutex);
+    ++g_blanks.frames;
+    if (took == 2) {
+      ++g_blanks.two;
+    } else if (took > 2) {
+      ++g_blanks.more;
+    }
+    if (g_blanks.frames >= g_blanks.next_line) {
+      g_blanks.next_line += 3000;
+      line = g_blanks;
+      log = true;
+    }
+  }
+  if (log) {
+    LogFrameBlanks(line, "the song so far");
+  }
+}
+
+namespace gh5 {
+
+void FrameBlanksSongEnded() {
+  FrameBlanks song;
+  {
+    std::lock_guard lock(g_blanks_mutex);
+    song = g_blanks;
+    g_blanks = {};
+  }
+  // The frames after the music's stop still have the players' updates until the results screen: the next of the three
+  // hooks (SongUnload when the results are left) would find a fifth of a second of them and log them as another
+  // "song" (GH WoR's local_docs/71, step 1.0). A count under a second's frames is no song.
+  if (song.frames >= uint64_t(VblankRate())) {
+    LogFrameBlanks(song, "the song");
+  }
+}
+
+}  // namespace gh5
 
 // [[midasm_hook]] 0x82637A80 and 0x82637D08 (sub_82637918): before "extsw r8,r30" / "extsw r11,r30", r30 = the
 // game's vertical blanks per second, which divides a clock counted in vertical blanks (the vblank counter
@@ -190,6 +279,12 @@ constexpr uint32_t kSelfTimedScripts[] = {0xEC23DF7E, 0xE66D1DA1, 0x4E850682, 0x
 bool IsSelfTimed(uint32_t script) {
   return std::find(std::begin(kSelfTimedScripts), std::end(kSelfTimedScripts), script) != std::end(kSelfTimedScripts);
 }
+// begin_song_after_intro (src/song_sync.cpp, with gh5_song_start_sync; GH Warriors of Rock's): a loop of "GetSongTimeMs,
+// if time >= starttimeafterintro break, wait 1 gameframe" that starts the song's music in its first pass with the clock
+// at the song's start. Held to 60 passes a second the music started 0 to 16.7 ms after it at any frame rate; every
+// frame, within a frame (6.25 ms at 160 FPS). A poll of the clock: running it every frame does not speed anything up.
+constexpr uint32_t kSongStartPoll = 0x647F97EE;
+bool IsSongStartPoll(uint32_t script) { return script == kSongStartPoll && REXCVAR_GET(gh5_song_start_sync); }
 
 uint32_t WaitingScript(uint32_t wait) {
   auto* kernel = rex::system::kernel_state();
@@ -222,7 +317,7 @@ void GH5FrameWaitSetHook(PPCRegister& r3, PPCRegister& r4) {
   // every frame, as at 60.
   const uint32_t waiting = WaitingScript(r3.u32);
   if (waiting == kStarPowerDrainScript || waiting == kButtonCheckerScript || waiting == kBandRenderScript ||
-      waiting == kDrummerScript || IsFrameExact(waiting) || IsSelfTimed(waiting)) {
+      waiting == kDrummerScript || IsFrameExact(waiting) || IsSelfTimed(waiting) || IsSongStartPoll(waiting)) {
     std::lock_guard lock(g_frame_waits_mutex);
     g_frame_waits.erase(r3.u32);
     return;

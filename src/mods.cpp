@@ -38,6 +38,17 @@
 //     the Hyperspeed cheat's factor, difficulty_setup). GH Warriors of Rock's first version scaled the height and
 //     scroll_time alone: the highway looked as seen from above and the notes came 18 % slower at 150 % (its
 //     local_docs/49).
+//   - The notes' speed at the strike line (GH Warriors of Rock's, its local_docs/65, 66): a note crosses the highway in
+//     the same time at any perspective, so where the rows near the strike line are shorter (below 100 %) it arrives
+//     slower in pixels, and faster above 100 %: s, the strike line's row's share of the highway against the console's
+//     (0.444, 0.598, 0.784, 1.243, 1.509 at 25, 50, 75, 125, 150 %; the same for every length, and for GH5, whose
+//     highway is GH Warriors of Rock's to the digit). With gh5_highway_keep_speed the times on the highway are
+//     multiplied by s as well as by the length (scroll_time and destroy_time, so a note crosses in k s (scroll_time -
+//     destroy_time) and the Hyperspeed keeps its ratios): the notes reach the strike line at the console's speed and
+//     show s times as long. The texture's tiling only follows the length: the highway's picture keeps its look and
+//     moves with the notes. The scale is left out (it shrinks the gems with the highway). One factor for every player
+//     count (the time is one per difficulty): with two to four players at 75 % their own s is 0.81 to 0.84, so their
+//     notes come 4-7 % faster than the console's.
 //   - Two to four players: each row of highway_scale_chart has its own projection (perspectivefact, perspectiveexp),
 //     changed the same way, and its extra_offset_factor (the bottom's narrowing) divided by the top's change, so each
 //     highway's bottom is the console's.
@@ -123,6 +134,11 @@ REXCVAR_DEFINE_INT32(gh5_highway_length, 100, "GH5",
 REXCVAR_DEFINE_INT32(gh5_highway_perspective, 100, "GH5",
                      "The note highway's perspective, in percent of the console's (25-150 in the launcher): below 100 "
                      "flatter, as seen from higher, above 100 steeper; 100 = as on the console");
+REXCVAR_DEFINE_BOOL(gh5_highway_keep_speed, false, "GH5",
+                    "With a highway perspective other than 100, the notes reach the strike line at the console's speed: "
+                    "the times on the highway multiplied by the perspective's speed there (shorter below 100, longer "
+                    "above); false = the console's times, the notes slower near the strike line below 100 and faster "
+                    "above");
 REXCVAR_DEFINE_STRING(gh5_highway_style, "original", "GH5",
                       "The note highway's look: original, or dark (the community's black highway)");
 REXCVAR_DEFINE_INT32(gh5_highway_opacity, 100, "GH5",
@@ -191,6 +207,13 @@ double Place(const Projection& p, double row) {
   }
   place += h[whole] * (row - whole);
   return place / sum;
+}
+
+// The notes' speed in pixels at the strike line with the perspective p, against the console's: the last row's share of
+// the highway (the same for every length: the length continues the projection beyond the far end).
+double StrikeLineSpeed(double p) {
+  const auto last_row = [](const Projection& projection) { return 1.0 - Place(projection, kRows - 1); };
+  return last_row(Transform(kChart[0], p, 1.0)) / last_row(kChart[0]);
 }
 
 struct Shape {
@@ -281,12 +304,29 @@ void Configure() {
           script::Set(at + "extra_offset_factor", kChartOffset[row] / c);
         }
       }
-      if (length != 100) {
-        script::Scale("difficulty_list_props.*.scroll_time", k);
-        script::Scale("destroy_time", k);
+      // The times on the highway: the length's, and with gh5_highway_keep_speed the perspective's speed.
+      const double speed = perspective != 100 ? StrikeLineSpeed(p) : 1.0;
+      const bool keep_speed = perspective != 100 && REXCVAR_GET(gh5_highway_keep_speed);
+      const double time = k * (keep_speed ? speed : 1.0);
+      if (time != 1.0) {
+        script::Scale("difficulty_list_props.*.scroll_time", time);
+        script::Scale("destroy_time", time);
       }
       if (perspective != 100) {
         summary += " highway perspective " + std::to_string(perspective) + " %";
+        // Expert's 2.5 s scroll time less the 1 s destroy time, without Hyperspeed.
+        const double expert = 1.5 * time;
+        if (keep_speed) {
+          summary += " (notes at the console's speed)";
+          REXLOG_INFO("[mods] highway perspective {} %: the notes reach the strike line at the console's speed "
+                      "(gh5_highway_keep_speed: the times on the highway x {:.3f}, {:.2f} s on Expert instead of "
+                      "{:.2f})",
+                      perspective, speed, expert, 1.5 * k);
+        } else {
+          REXLOG_INFO("[mods] highway perspective {} %: the notes reach the strike line at {:.2f} of the console's "
+                      "speed ({:.2f} s on Expert; gh5_highway_keep_speed off)",
+                      perspective, speed, expert);
+        }
       }
       if (length != 100) {
         summary += " highway length " + std::to_string(length) + " %";

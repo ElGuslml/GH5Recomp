@@ -57,7 +57,7 @@ cmake --build --preset win-amd64-release
 
 Command-line options (`--name=value`, for example Steam launch options) win over both files, for example
 `--fullscreen=false --window_width=1920 --window_height=1080`, `--native_x_renderer=false` (the Xenos path),
-`--gh5_frame_rate=120` (60, 120, 144, 160, 165 or 240;
+`--gh5_frame_rate=120` (60, 72, 75, 90, 100, 120, 144, 160, 165 or 240;
 [frame rates above 60](fixes-from-gh-van-halen.md#frame-rates-above-60)), `--gh5_ultrawide=true`
 ([ultrawide](fixes-from-gh-van-halen.md#ultrawide)), `--anisotropic_override=0` (off; 5 = 16×), `--user_language=4`
 (French; [language](fixes-from-gh-van-halen.md#language)), `--quit_prompt=false` (B in the main menu does not ask to

@@ -83,6 +83,8 @@ set(GH5_SOURCES
     src/screen_fx.cpp
     src/script_globals.cpp
     src/skinning.cpp
+    src/song_clock.cpp
+    src/song_sync.cpp
     src/split_render.cpp
     src/star_power_reverb.cpp
     src/startup.cpp

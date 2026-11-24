@@ -95,3 +95,45 @@ a song.
 **Not ported, the crowd switch:** GH WoR hides its crowd with its own soundcheck cheat, which GH5 does not have. Read
 `disable_crowd` as 1 in `create_crowd_models` (practice mode's state) and the venue's billboards show their
 placeholder atlas (coloured rectangles). Hiding each ped (`hide_crowd_models`) is left to try (`src/mods.cpp`).
+
+## GH Warriors of Rock's performance plan, Phases 0-2 (2026-11-23)
+
+**Status: built; Test-Games on both renderers (2026-11-24, `runs/2026-11-24_115142`): the first screen at 160 FPS,
+0 errors, the observer 361/361, the D181 and D182 lines in the log; not checked in a song yet.** What GH WoR's plan for weaker PCs changed in its own code and settings (its
+`docs/development.md`, `docs/native-x-renderer-ghwor.md`), with NativeXRenderer `70800c6` (D181, D182):
+- **`skip_msr`** (`gh5_functions.toml`): the XDK's inline Interlocked operations run as the host's atomics, without
+  the SDK's process-wide lock (GH WoR: -7 to -8 % of the process's cores on four cores, its job workers a fifth of
+  their time in that lock before). recomp-tools' `tools/codegen/msr_sites.py` checks every site by address: 224 sites
+  in 129 functions here. Its first run failed on two sites in `sub_82725C80` followed by `mftb r9`, an instruction it
+  did not decode and so read as reading `r8`, mfmsr's register; decoded as the write it is, every site passes (the
+  tool's fix is recomp-tools', not committed yet).
+- **A song's frames counted by the vertical blanks each took** (`hooks/perf_measure.toml`, `src/framerate.cpp`): the
+  log's `[frames]` lines, a line every 3,000 of a song's frames and one when its music stops (`SongStop`,
+  `SongUnload`, `SongAudioPlayerDeInit`). With NativeXRenderer the summary line also counts the song's frames apart
+  (D181, `native_x_renderer::SetMainActivity`).
+- **V-Sync in a window** (`src/startup.cpp`): `native_x_renderer_window_present_mode = "mailbox"` (D182), as GH WoR.
+- **72, 75, 90 and 100 FPS** in the launcher's frame rate row (`launcher/game.h`).
+
+**Not ported:** GH WoR's lighting job fix (`ghwor_lighting_job_wait`). GH5 has no such job: its stage 9
+(`sub_825D2718`) waits for no job group and no code queues group 365.
+
+## GH Warriors of Rock's work of 2026-11-18 to 24 (2026-11-24)
+
+**Status: built, not run yet.** Submodules: SDK `53665a9` (changes 123-125), NativeXRenderer `e17a68a` (D182's texts
+only), RecompLauncher 3.33.1 (GH Warriors of Rock's 3.33.0 with GH5's 3.31.1, the highway preview's second pak, merged
+in).
+- **The notes and the music in step** ([song-sync.md](song-sync.md)): the song's clocks by the vertical blanks' own
+  times (`gh5_song_clock_exact`), a song that follows another started with its music (`gh5_song_start_sync`), the
+  SDK's two clock and audio fixes. `hooks/song_sync.toml`, `src/song_clock.cpp`, `src/song_sync.cpp`; GH5 has a second
+  song clock (`sub_823EB8D8`), which both fixes cover.
+- **Notes at the console's speed** with a highway perspective other than 100 % (Mods → Highway, under the
+  perspective; `gh5_highway_keep_speed`, off): the times on the highway multiplied by the perspective's speed at the
+  strike line (0.784 at 75 %), so the Hyperspeed keeps its feel. The perspective's help no longer says the notes keep
+  their speed there (they do not).
+- **The keyboard on Guitar Hero III's layout** (SDK change 125, `keyboard_guitar_layout = "gh3"`, the launcher's
+  Keyboard page, Play style): in a song the fret keys play without a strum through the same hooks as a controller
+  (the open note on 3, Star Power on Space, the whammy bar on the right arrow). **Off:** Play style Guitar · Xbox 360.
+- **Two more stamps written unwatched** (the performance plan's Phase 3; `hooks/draw_stamps.toml`,
+  `gh5_draw_stamps_unwatched`, on): a render object's last drawn frame (`0x82641830`, object + 128; GH WoR's + 112)
+  and SetTexture's fence (`0x82314614`). The render objects share pages with textures, so each stamp faulted on a
+  watched texture page; in GH WoR texture loads went from 0.5-1 a frame to none.

@@ -137,3 +137,16 @@ in).
   `gh5_draw_stamps_unwatched`, on): a render object's last drawn frame (`0x82641830`, object + 128; GH WoR's + 112)
   and SetTexture's fence (`0x82314614`). The render objects share pages with textures, so each stamp faulted on a
   watched texture page; in GH WoR texture loads went from 0.5-1 a frame to none.
+
+## Still to port (2026-11-25, after 0.2.1)
+
+GH Warriors of Rock 1.0.0 has these and GH5 0.2.1 does not (Gustavo, 2026-11-25: 0.2.1 without them, noted for
+later). All four need GH5's upscale point (WoR's `0x82641558` after the bloom and the depth of field, D119's point
+before the HUD), found in GH5's code and given to NativeXRenderer as WoR's `src/native_x_renderer_ghwor.cpp` does:
+- **NVIDIA DLSS / DLAA and AMD FSR 3.1** (D119, D156-D161, D164): with the split render's pauses (D159) and the reset
+  at camera cuts (WoR's `src/camera_cuts.cpp`, D158), `kHasDlaa` / `kHasDlssModel` in `launcher/game.h`, and
+  `Package-Release -WithDlss -WithFsr`.
+- **Resolutions below 720 lines** (D174, D175): `native_x_renderer_scene_scale`, `game::kLowResolutions`.
+- **Ambient occlusion** (D178, XeGTAO, with the camera from the view's first draw) and **texture detail** (D179): the
+  game's own AO left out while ours is on (WoR's flag 0x800).
+Also not here: online play (WoR's `docs/online-play.md`) and the crowd switch (above).
